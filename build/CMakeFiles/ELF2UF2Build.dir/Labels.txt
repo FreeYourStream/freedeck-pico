@@ -1,0 +1,13 @@
+# Target labels
+ ELF2UF2Build
+# Source files and their labels
+/home/koriwi/Development/Hobby/picopi/i2c_7seg/build/CMakeFiles/ELF2UF2Build
+/home/koriwi/Development/Hobby/picopi/i2c_7seg/build/CMakeFiles/ELF2UF2Build.rule
+/home/koriwi/Development/Hobby/picopi/i2c_7seg/build/CMakeFiles/ELF2UF2Build-complete.rule
+/home/koriwi/Development/Hobby/picopi/i2c_7seg/build/elf2uf2/src/ELF2UF2Build-stamp/ELF2UF2Build-install.rule
+/home/koriwi/Development/Hobby/picopi/i2c_7seg/build/elf2uf2/src/ELF2UF2Build-stamp/ELF2UF2Build-mkdir.rule
+/home/koriwi/Development/Hobby/picopi/i2c_7seg/build/elf2uf2/src/ELF2UF2Build-stamp/ELF2UF2Build-download.rule
+/home/koriwi/Development/Hobby/picopi/i2c_7seg/build/elf2uf2/src/ELF2UF2Build-stamp/ELF2UF2Build-update.rule
+/home/koriwi/Development/Hobby/picopi/i2c_7seg/build/elf2uf2/src/ELF2UF2Build-stamp/ELF2UF2Build-patch.rule
+/home/koriwi/Development/Hobby/picopi/i2c_7seg/build/elf2uf2/src/ELF2UF2Build-stamp/ELF2UF2Build-configure.rule
+/home/koriwi/Development/Hobby/picopi/i2c_7seg/build/elf2uf2/src/ELF2UF2Build-stamp/ELF2UF2Build-build.rule
