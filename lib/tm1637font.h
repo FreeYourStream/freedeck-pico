@@ -43,32 +43,32 @@
 #define TM_CHAR_ERR 0x49
 
 uint8_t inline TM1637_map_char(const char ch) {
-	uint8_t rc = 0;
+  uint8_t rc = 0;
 
-	switch (ch) {
-		case '-':
-			rc = TM_MINUS;
-			break;
-		case '+':
-			rc = TM_PLUS;
-			break;
-		case ' ':
-			rc = TM_BLANK;
-			break;
-		case '^':
-			rc = TM_DEGREES;
-			break;
-		case '_':
-			rc = TM_UNDERSCORE;
-			break;
-		case '=':
-			rc = TM_EQUALS;
-			break;
-		default:
-			break;
-	}
+  switch (ch) {
+  case '-':
+    rc = TM_MINUS;
+    break;
+  case '+':
+    rc = TM_PLUS;
+    break;
+  case ' ':
+    rc = TM_BLANK;
+    break;
+  case '^':
+    rc = TM_DEGREES;
+    break;
+  case '_':
+    rc = TM_UNDERSCORE;
+    break;
+  case '=':
+    rc = TM_EQUALS;
+    break;
+  default:
+    break;
+  }
 
-	return rc;
+  return rc;
 }
 
 //      Bits:                 Hex:
@@ -82,56 +82,55 @@ uint8_t inline TM1637_map_char(const char ch) {
 //       |       |             |        |
 //        -- 3 --  .7           -- 08 --   .80
 
-const uint8_t TM_DIGITS[] = {
-	// 0x3F,  // 0
-	// 0x06,  // 1
-	// 0x5B,  // 2
-	// 0x4F,  // 3
-	// 0x66,  // 4
-	// 0x6D,  // 5
-	// 0x7D,  // 6
-	// 0x07,  // 7
-	// 0x7F,  // 8
-	// 0x6F,  // 9
+const uint8_t TM_DIGITS[] = {0x3F, // 0
+                             0x06, // 1
+                             0x5B, // 2
+                             0x4F, // 3
+                             0x66, // 4
+                             0x6D, // 5
+                             0x7D, // 6
+                             0x07, // 7
+                             0x7F, // 8
+                             0x6F, // 9
 
-	0x3F,  // 0 a
-	0x06,  // 1 a
-	0x6D,  // 2 a
-	0x4F,  // 3 a
-	0x56,  // 4 a
-	0x5B,  // 5 a
-	0x7B,  // 6 a
-	0x0E,  // 7
-	0x7F,  // 8 a
-	0x5F,  // 9
+                             // 0x3F,  // 0 a
+                             // 0x06,  // 1 a
+                             // 0x6D,  // 2 a
+                             // 0x4F,  // 3 a
+                             // 0x56,  // 4 a
+                             // 0x5B,  // 5 a
+                             // 0x7B,  // 6 a
+                             // 0x0E,  // 7
+                             // 0x7F,  // 8 a
+                             // 0x5F,  // 9
 
-	0x77,  // A
-	0x7C,  // b
-	0x39,  // C
-	0x5E,  // d
-	0x79,  // E
-	0x71,  // F
+                             0x77, // A
+                             0x7C, // b
+                             0x39, // C
+                             0x5E, // d
+                             0x79, // E
+                             0x71, // F
 
-	// HEX DIGITS END
+                             // HEX DIGITS END
 
-	0x3D,  // G
-	0x76,  // H
-	0x06,  // I
-	0x1F,  // J
-	0x76,  // K (same as H)
-	0x38,  // L
-	0x15,  // M
-	0x54,  // n
-	0x3F,  // O
-	0x73,  // P
-	0x67,  // Q
-	0x50,  // r
-	0x6D,  // S
-	0x78,  // t
-	0x3E,  // U
-	0x1C,  // V
-	0x2A,  // W
-	0x76,  // X (same as H)
-	0x6E,  // Y
-	0x5B   // Z
-};
+                             0x3D, // G
+                             0x76, // H
+                             0x06, // I
+                             0x1F, // J
+                             0x76, // K (same as H)
+                             0x38, // L
+                             0x15, // M
+                             0x54, // n
+                             0x3F, // O
+                             0x73, // P
+                             0x67, // Q
+                             0x50, // r
+                             0x6D, // S
+                             0x78, // t
+                             0x3E, // U
+                             0x1C, // V
+                             0x2A, // W
+                             0x76, // X (same as H)
+                             0x6E, // Y
+                             0x5B, // Z
+                             0x00};

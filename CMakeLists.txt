@@ -12,13 +12,14 @@ pico_sdk_init()
 # rest of your project
 
 if (TARGET tinyusb_device)
-    add_executable(i2c_7seg
-            i2c_7seg.cpp
-            lib/tm1637.cpp
-            )
+    add_executable(i2c_7seg)
+    
+    pico_generate_pio_header(i2c_7seg ${CMAKE_CURRENT_LIST_DIR}/pio/tm1637.pio)
+
+    target_sources(i2c_7seg PRIVATE i2c_7seg.cpp)
 
     # Pull in our pico_stdlib which aggregates commonly used features
-    target_link_libraries(i2c_7seg pico_stdlib)
+    target_link_libraries(i2c_7seg PRIVATE pico_stdlib hardware_pio)
 
     # enable usb output, disable uart output
     pico_enable_stdio_usb(i2c_7seg 1)
