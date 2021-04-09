@@ -17,11 +17,8 @@ loop_on:
   jmp x-- loop_on   ; do the same loopy loop stuff
   set pins, 0       ; if x is 0 turn led off
 
-  mov y, osr        ; restore y
-  mov x, isr        ; restore x
-                    ; y=2, x=7, osr=2, isr=7
-  mov x, y          ; y=2, x=2, osr=2, isr=7
-  pull noblock      ; y=2, x=2, osr=2|3, isr=7
+  mov x, osr        ; restore y into x ; y=0, x=2, osr=2, isr=7
+  pull noblock      ; y=0, x=2, osr=2|3, isr=7
   mov y, osr        ; y=2|3, x=2, osr=2|3, isr=7
   mov x, isr        ; y=2|3, x=7, osr=2|3, isr=7
   pull noblock      ; y=2|3, x=7, osr=7|8, isr=7

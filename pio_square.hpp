@@ -22,8 +22,8 @@ public:
     jump_program_init(pio, sm, offset, pin);
     set_hz(100);
   }
-  // -12 is for calibrating
-  uint32_t cleanDivider() { return (divider * 2) - 12; }
+  // -10 is for calibrating
+  uint32_t cleanDivider() { return (divider * 2) - 10; }
 
   void set_hz(uint32_t hz) {
     divider = SYS_CLOCK / (hz * 2);
