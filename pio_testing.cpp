@@ -5,16 +5,22 @@
 #include "pico/stdlib.h"
 #include "pio_square.hpp"
 
+double duty_cycle = 0.01;
+double modifier = 0.01;
+
 void setup() {
   stdio_init_all();
   uart_init(uart0, 115200);
-  // internal led
-  gpio_init(27);
-  gpio_set_dir(27, GPIO_OUT);
-  gpio_put(27, 1);
-
-  Pio_square freq(pio0, 27);
-  freq.set_khz(123);
+  sleep_ms(2000);
+  Pio_square freq = Pio_square(pio0, 25);
+  freq.set_khz(5);
+  while (true) {
+    if (duty_cycle > 1 || duty_cycle < 0)
+      modifier *= -1;
+    freq.set_duty_cycle_percent(duty_cycle);
+    duty_cycle += modifier;
+    sleep_ms(10);
+  }
 }
 
 void loop() {}
