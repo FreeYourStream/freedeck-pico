@@ -7,24 +7,26 @@
 
 .wrap_target
 
-  mov osr, y          ;backup y into osr
+  mov osr, y        ; backup y into osr
+  mov isr, x        ; backup x into isr
 loop_off:
-  jmp y-- loop_off  ;check if y is not zero. if > 0 then do it again. always decrement by 1
-  set pins, 1       ;if y is 0 turn on
-  mov y, osr        ;restore y
+  jmp y-- loop_off  ; check if y is not zero. if > 0 then do it again. always decrement by 1
+  set pins, 1       ; if y is 0 turn on
 
-  mov osr, x          ;backup x into osr
 loop_on:
-  jmp x-- loop_on   ;do the same loopy loop stuff
-  set pins, 0       ;if x is 0 turn led off
-  mov x, osr        ;restore x
-  
-  pull noblock  ;-> osr=2|3, x=2, y=7
-  mov x,y       ;-> x=7, y=7, osr=2|3
-  mov y, osr    ;-> x=7, y=2|3, osr=2|3
-  pull noblock  ;-> osr=7|8, x=7, y=2|3
-  mov x,y       ;-> x=2|3, y=2|3, osr=7|8
-  out y, 32      ;-> x=2|3, y=7|8, osr={}
+  jmp x-- loop_on   ; do the same loopy loop stuff
+  set pins, 0       ; if x is 0 turn led off
+
+  mov y, osr        ; restore y
+  mov x, isr        ; restore x
+                    ; y=2, x=7, osr=2, isr=7
+  mov x, y          ; y=2, x=2, osr=2, isr=7
+  pull noblock      ; y=2, x=2, osr=2|3, isr=7
+  mov y, osr        ; y=2|3, x=2, osr=2|3, isr=7
+  mov x, isr        ; y=2|3, x=7, osr=2|3, isr=7
+  pull noblock      ; y=2|3, x=7, osr=7|8, isr=7
+  mov x, osr        ; y=2|3, x=7|8, osr=7|8, isr=7
+
 .wrap
 
 ;;.wrap_target
