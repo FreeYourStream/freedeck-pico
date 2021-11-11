@@ -1,3 +1,19 @@
 {
-  "C_Cpp.clang_format_fallbackStyle": "{ ColumnLimit: 100 }"
+  "C_Cpp.clang_format_fallbackStyle": "{ ColumnLimit: 100 }",
+  "files.associations": {
+    "tusb.h": "c",
+    "board.h": "c",
+    "*.ipp": "c",
+    "*.tcc": "c",
+    "unordered_map": "c",
+    "fstream": "c",
+    "istream": "c",
+    "numeric": "c",
+    "ostream": "c",
+    "sstream": "c",
+    "usb_descriptors.h": "c",
+    "string": "c",
+    "string.h": "c",
+    "stdlib.h": "c"
+  }
 }

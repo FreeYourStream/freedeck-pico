@@ -1,0 +1,7 @@
+#include "keyboard.h"
+#include "pico/stdlib.h"
+#include "stdio.h"
+
+#ifndef SYS_CLOCK
+#define SYS_CLOCK 125000000
+#endif

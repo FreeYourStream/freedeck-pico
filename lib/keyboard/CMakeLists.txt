@@ -1,0 +1,6 @@
+file(GLOB FILES src/*.c include/*.h)
+project(usb_keyboard)
+message(${FILES})
+add_library(${PROJECT_NAME} ${FILES})
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include)
+target_link_libraries(${PROJECT_NAME} pico_stdlib tinyusb_board tinyusb_device)

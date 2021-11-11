@@ -1,10 +1,11 @@
 #!/bin/bash
 
 PI_DIRECTORY="/run/media/koriwi/RPI-RP2"
-
+pwd
 cd build &&
-  make &&
-  # stty -F /dev/ttyACM0 1200
+  cmake ../ &&
+  cmake --build . -j 20 &&
+  stty -F /dev/ttyACM0 1200
 
 while [ ! -d "$PI_DIRECTORY" ];
 do
@@ -13,4 +14,4 @@ done
 
 sleep 1.5
 
-cp pio_testing.uf2 $PI_DIRECTORY
+cp freedeck-pico.uf2 $PI_DIRECTORY
