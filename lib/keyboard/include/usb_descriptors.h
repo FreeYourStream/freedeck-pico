@@ -27,8 +27,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-enum { REPORT_ID_KEYBOARD = 1, REPORT_ID_MOUSE };
-// enum { REPORT_ID_CDC = 1, REPORT_ID_KEYBOARD, REPORT_ID_CONSUMER_CONTROL, REPORT_ID_COUNT };
+enum { REPORT_ID_KEYBOARD = 1, REPORT_ID_CONSUMER_CONTROL, REPORT_ID_CDC };
 #ifdef __cplusplus
 }
 #endif

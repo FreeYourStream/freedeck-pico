@@ -14,6 +14,7 @@
     "usb_descriptors.h": "c",
     "string": "c",
     "string.h": "c",
-    "stdlib.h": "c"
+    "stdlib.h": "c",
+    "*.c_disabled": "c"
   }
 }
