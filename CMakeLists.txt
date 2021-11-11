@@ -28,7 +28,7 @@ if (TARGET tinyusb_device)
     target_link_libraries(${PROJECT_NAME} PRIVATE pico_stdlib hardware_i2c ssd1306 usb_keyboard)
 
     # enable usb output, disable uart output
-    # pico_enable_stdio_usb(${PROJECT_NAME} 0)
+    # pico_enable_stdio_usb(${PROJECT_NAME} 1)
     # pico_enable_stdio_uart(${PROJECT_NAME} 0)
 
     # create map/bin/hex/uf2 file etc.

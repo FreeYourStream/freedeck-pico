@@ -15,6 +15,8 @@
     "string": "c",
     "string.h": "c",
     "stdlib.h": "c",
-    "*.c_disabled": "c"
-  }
+    "*.c_disabled": "c",
+    "stdio_usb.c": "cpp"
+  },
+  "C_Cpp.errorSquiggles": "Enabled"
 }
