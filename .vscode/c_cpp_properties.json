@@ -4,14 +4,20 @@
       "name": "Linux",
       "includePath": [
         "${workspaceFolder}/lib/**",
+        "${workspaceFolder}/",
         "/usr/share/pico-sdk/src/**",
-        "/usr/share/pico-sdk/lib/**"
+        "/usr/share/pico-sdk/lib/**",
+        "/usr/share/pico-sdk/generated/**",
+        "/usr/share/pico-sdk/generated/pico_base/",
+        "/usr/share/pico-sdk/src/rp2_common/pico_platform/include/",
+        "/usr/share/pico-sdk/src/common/pico_base/include/"
       ],
       "defines": [],
       "compilerPath": "/usr/bin/clang",
       "cStandard": "c17",
       "cppStandard": "c++14",
-      "intelliSenseMode": "linux-clang-x64"
+      "intelliSenseMode": "linux-clang-x64",
+      "configurationProvider": "ms-vscode.cmake-tools"
     }
   ],
   "version": 4

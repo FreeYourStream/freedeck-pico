@@ -24,11 +24,11 @@
 
 #ifndef USB_DESCRIPTORS_H_
 #define USB_DESCRIPTORS_H_
-#ifdef __cplusplus
-extern "C" {
-#endif
+// #ifdef __cplusplus
+// extern "C" {
+// #endif
 enum { REPORT_ID_KEYBOARD = 1, REPORT_ID_CONSUMER_CONTROL, REPORT_ID_CDC };
-#ifdef __cplusplus
-}
-#endif
+// #ifdef __cplusplus
+// }
+// #endif
 #endif /* USB_DESCRIPTORS_H_ */

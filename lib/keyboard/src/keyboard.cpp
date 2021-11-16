@@ -27,27 +27,28 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../include/keyboard.h"
+// #include "../../freedeck_serial/freedeck_serial.hpp"
+#include "../include/keyboard.hpp"
 #include "bsp/board.h"
+#include "init.hpp"
+#include "pico/bootrom.h"
+#include "settings.hpp"
 #include "tusb.h"
-#include "usb_descriptors.h"
+#include "usb_descriptors.hpp"
+#include "util.hpp"
 
 //--------------------------------------------------------------------+
 // MACRO CONSTANT TYPEDEF PROTYPES
 //--------------------------------------------------------------------+
 
-/* Blink pattern
- * - 250 ms  : device not mounted
- * - 1000 ms : device mounted
- * - 2500 ms : device is suspended
- */
 enum {
   BLINK_NOT_MOUNTED = 250,
-  BLINK_MOUNTED = 1000,
-  BLINK_SUSPENDED = 2500,
+  BLINK_MOUNTED = 1,
+  BLINK_SUSPENDED = 0,
 };
 
 uint8_t keycode[6] = {0};
+static uint32_t blink_interval_ms = BLINK_NOT_MOUNTED;
 
 void setKeycode(uint8_t newKeycode[6]) {
   tud_cdc_write_str("pressed\n");
@@ -63,23 +64,8 @@ void setKeycode(uint8_t newKeycode[6]) {
   }
 }
 
-static uint32_t blink_interval_ms = BLINK_NOT_MOUNTED;
-
-void led_blinking_task(void);
-void echo_all(uint8_t buf[], uint32_t count) {
-  // echo to cdc
-  if (tud_cdc_connected()) {
-    for (uint32_t i = 0; i < count; i++) {
-      tud_cdc_write_char(buf[i]);
-
-      if (buf[i] == '\r')
-        tud_cdc_write_char('\n');
-    }
-    tud_cdc_write_flush();
-  }
-}
 /*------------- MAIN -------------*/
-void init_hid(void) {
+void init_usb(void) {
   board_init();
   tusb_init();
 }
@@ -93,12 +79,14 @@ void tud_mount_cb(void) { blink_interval_ms = BLINK_MOUNTED; }
 
 void tud_cdc_line_state_cb(uint8_t itf, bool dtr, bool rts) {
   (void)itf;
+  if (!dtr) {
+    cdc_line_coding_t coding;
+    tud_cdc_get_line_coding(&coding);
 
-  // // connected
-  // if (dtr && rts) {
-  //   // print initial message when connected
-  //   tud_cdc_write_str("\r\nTinyUSB WebUSB device example\r\n");
-  // }
+    if (coding.bit_rate == 1200) {
+      reset_usb_boot(0, 0);
+    }
+  }
 }
 
 // Invoked when device is unmounted
@@ -110,10 +98,20 @@ void tud_umount_cb(void) { blink_interval_ms = BLINK_NOT_MOUNTED; }
 void tud_suspend_cb(bool remote_wakeup_en) {
   (void)remote_wakeup_en;
   blink_interval_ms = BLINK_SUSPENDED;
+  for (int i = 0; i < BD_COUNT; i++) {
+    set_mux_address(i);
+    oled[i]->displayON(0);
+  }
 }
 
 // Invoked when usb bus is resumed
-void tud_resume_cb(void) { blink_interval_ms = BLINK_MOUNTED; }
+void tud_resume_cb(void) {
+  blink_interval_ms = BLINK_MOUNTED;
+  for (int i = 0; i < BD_COUNT; i++) {
+    set_mux_address(i);
+    oled[i]->displayON(1);
+  }
+}
 
 //--------------------------------------------------------------------+
 // USB HID
@@ -138,27 +136,11 @@ static void send_hid_report() {
     has_keyboard_key = false;
   }
 }
-void cdc_task(void) {
-  if (tud_cdc_connected()) {
-    // connected and there are data available
-    if (tud_cdc_available()) {
-      uint8_t buf[64];
 
-      uint32_t count = tud_cdc_read(buf, sizeof(buf));
-
-      // echo back to both web serial and cdc
-      echo_all(buf, count);
-    }
-  }
-}
-
-// Invoked when CDC interface received data from host
-void tud_cdc_rx_cb(uint8_t itf) { (void)itf; }
 // Every 10ms, we will sent 1 report for each HID profile (keyboard, mouse etc ..)
 // tud_hid_report_complete_cb() is used to send the next report after previous one is complete
-void process_hid(void) {
+void process_usb(void) {
   tud_task(); // tinyusb device task
-  cdc_task();
   led_blinking_task();
   // Poll every 10ms
   const uint32_t interval_ms = 10;
@@ -180,20 +162,6 @@ void process_hid(void) {
     send_hid_report();
   }
 }
-
-// Invoked when sent REPORT successfully to host
-// Application can use this to send the next report
-// Note: For composite reports, report[0] is report ID
-// void tud_hid_report_complete_cb(uint8_t instance, uint8_t const *report, uint8_t len) {
-//   (void)instance;
-//   (void)len;
-
-//   uint8_t next_report_id = report[0] + 1;
-
-//   if (next_report_id < REPORT_ID_COUNT) {
-//     send_hid_report(next_report_id, board_button_read());
-//   }
-// }
 
 // Invoked when received GET_REPORT control request
 // Application must fill buffer report's content and return its length.
@@ -228,8 +196,10 @@ void led_blinking_task(void) {
   static bool led_state = false;
 
   // blink is disabled
-  if (!blink_interval_ms)
+  if (!blink_interval_ms) {
+    board_led_write(false);
     return;
+  }
 
   // Blink every interval ms
   if (board_millis() - start_ms < blink_interval_ms)

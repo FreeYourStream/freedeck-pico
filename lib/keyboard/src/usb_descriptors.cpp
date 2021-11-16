@@ -23,7 +23,7 @@
  *
  */
 
-#include "usb_descriptors.h"
+#include "usb_descriptors.hpp"
 #include "tusb.h"
 
 /* A combination of interfaces must have a unique product id, since PC will save device driver after
@@ -66,12 +66,6 @@ tusb_desc_device_t const desc_device = {.bLength = sizeof(tusb_desc_device_t),
 // Application return pointer to descriptor
 uint8_t const *tud_descriptor_device_cb(void) { return (uint8_t const *)&desc_device; }
 
-#define EPNUM_CDC_NOTIF 0x81
-#define EPNUM_CDC_OUT 0x02
-#define EPNUM_CDC_IN 0x82
-#define EPNUM_VENDOR_IN 3
-#define EPNUM_VENDOR_OUT 3
-
 //--------------------------------------------------------------------+
 // HID Report Descriptor
 //--------------------------------------------------------------------+
@@ -85,10 +79,6 @@ uint8_t const desc_hid_report[] = {
     TUD_HID_REPORT_DESC_KEYBOARD(HID_REPORT_ID(REPORT_ID_KEYBOARD)),
     TUD_HID_REPORT_DESC_CONSUMER(HID_REPORT_ID(REPORT_ID_CONSUMER_CONTROL))};
 
-uint8_t const desc_cdc_report[] = {TUD_CDC_DESCRIPTOR(REPORT_ID_CDC, 4, EPNUM_CDC_NOTIF, 8,
-                                                      EPNUM_CDC_OUT, EPNUM_CDC_IN,
-                                                      TUD_OPT_HIGH_SPEED ? 512 : 64)};
-
 // Invoked when received GET HID REPORT DESCRIPTOR
 // Application return pointer to descriptor
 // Descriptor contents must exist long enough for transfer to complete
@@ -96,6 +86,15 @@ uint8_t const *tud_hid_descriptor_report_cb(uint8_t instance) {
   (void)instance;
   return desc_hid_report;
 }
+
+#define EPNUM_CDC_NOTIF 0x81
+#define EPNUM_CDC_OUT 0x02
+#define EPNUM_CDC_IN 0x82
+#define EPNUM_VENDOR_IN 3
+#define EPNUM_VENDOR_OUT 3
+
+uint8_t const desc_cdc_report[] = {
+    TUD_CDC_DESCRIPTOR(REPORT_ID_CDC, 4, EPNUM_CDC_NOTIF, 8, EPNUM_CDC_OUT, EPNUM_CDC_IN, 64)};
 
 uint8_t const *tud_cdc_descriptor_report_cb(uint8_t instance) {
   (void)instance;
@@ -125,7 +124,15 @@ uint8_t const desc_configuration[] = {
 #if TUD_OPT_HIGH_SPEED
 // Per USB specs: high speed capable device must report device_qualifier and
 // other_speed_configuration
-
+uint8_t const desc_hs_configuration[] = {
+    // Config number, interface count, string index, total length, attribute, power in mA
+    TUD_CONFIG_DESCRIPTOR(1, ITF_NUM_TOTAL, 0, CONFIG_TOTAL_LEN, TUSB_DESC_CONFIG_ATT_REMOTE_WAKEUP,
+                          500),
+    TUD_HID_DESCRIPTOR(ITF_NUM_HID, 0x05, HID_ITF_PROTOCOL_NONE, sizeof(desc_hid_report), EPNUM_HID,
+                       CFG_TUD_HID_EP_BUFSIZE, 5),
+    // Interface number, string index, protocol, report descriptor len, EP In address, size &
+    // polling interval
+    TUD_CDC_DESCRIPTOR(ITF_NUM_CDC, 0x04, EPNUM_CDC_NOTIF, 8, EPNUM_CDC_OUT, EPNUM_CDC_IN, 512)};
 // other speed configuration
 uint8_t desc_other_speed_config[CONFIG_TOTAL_LEN];
 
@@ -136,9 +143,9 @@ tusb_desc_device_qualifier_t const desc_device_qualifier = {
     .bDescriptorType = TUSB_DESC_DEVICE_QUALIFIER,
     .bcdUSB = USB_BCD,
 
-    .bDeviceClass = 0x00,
-    .bDeviceSubClass = 0x00,
-    .bDeviceProtocol = 0x00,
+    .bDeviceClass = TUSB_CLASS_MISC,
+    .bDeviceSubClass = MISC_SUBCLASS_COMMON,
+    .bDeviceProtocol = MISC_PROTOCOL_IAD,
 
     .bMaxPacketSize0 = CFG_TUD_ENDPOINT0_SIZE,
     .bNumConfigurations = 0x01,
@@ -161,13 +168,14 @@ uint8_t const *tud_descriptor_other_speed_configuration_cb(uint8_t index) {
   (void)index; // for multiple configurations
 
   // other speed config is basically configuration with type = OHER_SPEED_CONFIG
-  memcpy(desc_other_speed_config, desc_configuration, CONFIG_TOTAL_LEN);
+  memcpy(desc_other_speed_config,
+         (tud_speed_get() == TUSB_SPEED_HIGH) ? desc_configuration : desc_hs_configuration,
+         CONFIG_TOTAL_LEN);
   desc_other_speed_config[1] = TUSB_DESC_OTHER_SPEED_CONFIG;
 
   // this example use the same configuration for both high and full speed mode
   return desc_other_speed_config;
 }
-
 #endif // highspeed
 
 // Invoked when received GET CONFIGURATION DESCRIPTOR
@@ -176,8 +184,12 @@ uint8_t const *tud_descriptor_other_speed_configuration_cb(uint8_t index) {
 uint8_t const *tud_descriptor_configuration_cb(uint8_t index) {
   (void)index; // for multiple configurations
 
-  // This example use the same configuration for both high and full speed mode
-  return desc_configuration;
+#if TUD_OPT_HIGH_SPEED
+  // Although we are highspeed, host may be fullspeed.
+  return (tud_speed_get() == TUSB_SPEED_HIGH) ? desc_hs_configuration : desc_configuration;
+#else
+  return desc_fs_configuration;
+#endif
 }
 
 //--------------------------------------------------------------------+
