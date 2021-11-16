@@ -1,7 +1,7 @@
 #include "freedeck_serial.hpp"
 #include "bsp/board.h"
+#include "fd_usb.hpp"
 #include "init.hpp"
-#include "keyboard.hpp"
 #include "pico/stdio.h"
 #include "pico/stdlib.h"
 #include "settings.hpp"

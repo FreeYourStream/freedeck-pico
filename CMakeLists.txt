@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.13)
+include(./DownloadProject/DownloadProject.cmake)
 # set(CMAKE_BUILD_TYPE Debug)
 
 set(CMAKE_C_STANDARD 11)
@@ -11,12 +12,17 @@ project(freedeck-pico C CXX ASM)
 # initialize the Raspberry Pi Pico SDK
 pico_sdk_init()
 
-
-
-
+download_project(
+  PROJ fatfs_pico
+  GIT_REPOSITORY https://github.com/carlk3/no-OS-FatFS-SD-SPI-RPi-Pico.git
+  GIT_TAG        fe71973accb34783840ad59443c023e4b5eccf03
+  UPDATE_DISCONNECTED 1
+)
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 # rest of your project
 
 if (TARGET tinyusb_device)
+    
     add_library(settings INTERFACE)
     target_include_directories(settings INTERFACE ${CMAKE_CURRENT_LIST_DIR})
 
@@ -24,8 +30,9 @@ if (TARGET tinyusb_device)
     target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR})
     add_subdirectory(lib/freedeck)
     add_subdirectory(lib/ssd1306)
-    add_subdirectory(lib/keyboard)
-    add_subdirectory(lib/no-OS-FatFS/FatFs_SPI)
+    add_subdirectory(lib/usb_com)
+    # add_subdirectory(lib/no-OS-FatFS/FatFs_SPI)
+    add_subdirectory(${fatfs_pico_SOURCE_DIR}/FatFs_SPI ${fatfs_pico_BINARY_DIR})
     
 
     # pico_generate_pio_header(${PROJECT_NAME})
@@ -33,7 +40,7 @@ if (TARGET tinyusb_device)
     # target_sources(${PROJECT_NAME} PRIVATE main.cpp)
     # target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_LIST_DIR})
     # Pull in our pico_stdlib which aggregates commonly used features
-    target_link_libraries(${PROJECT_NAME} PUBLIC pico_stdlib pico_multicore hardware_i2c ssd1306 usb_keyboard freedeck_lib )
+    target_link_libraries(${PROJECT_NAME} PUBLIC pico_stdlib pico_multicore hardware_i2c ssd1306 usb_com freedeck_lib )
 
     # enable usb output, disable uart output
     # pico_enable_stdio_usb(${PROJECT_NAME} 1)

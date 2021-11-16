@@ -28,8 +28,8 @@
 #include <string.h>
 
 // #include "../../freedeck_serial/freedeck_serial.hpp"
-#include "../include/keyboard.hpp"
 #include "bsp/board.h"
+#include "fd_usb.hpp"
 #include "init.hpp"
 #include "pico/bootrom.h"
 #include "settings.hpp"

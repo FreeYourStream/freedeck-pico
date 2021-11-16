@@ -1,5 +1,5 @@
 file(GLOB_RECURSE FILES "*.cpp")
-set(LIBRARY_NAME usb_keyboard)
+set(LIBRARY_NAME usb_com)
 add_library(${LIBRARY_NAME} STATIC ${FILES})
 target_include_directories(${LIBRARY_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include)
 target_link_libraries(${LIBRARY_NAME} pico_stdlib tinyusb_board tinyusb_device freedeck_lib)

@@ -5,8 +5,8 @@
 #include "hardware/i2c.h"
 #include "pico/stdlib.h"
 #include <bsp/board.h>
+#include <fd_usb.hpp>
 #include <init.hpp>
-#include <keyboard.hpp>
 #include <logo.hpp>
 #include <settings.hpp>
 #include <util.hpp>

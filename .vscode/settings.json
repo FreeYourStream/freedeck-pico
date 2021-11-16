@@ -52,7 +52,9 @@
     "i2c.h": "c",
     "types.h": "c",
     "error.h": "c",
-    "time.h": "c"
+    "time.h": "c",
+    "config.h": "c",
+    "version.h": "c"
   },
   "C_Cpp.errorSquiggles": "Enabled"
 }

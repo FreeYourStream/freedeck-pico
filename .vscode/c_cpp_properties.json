@@ -4,6 +4,7 @@
       "name": "Linux",
       "includePath": [
         "${workspaceFolder}/lib/**",
+        "${workspaceFolder}/build/**",
         "${workspaceFolder}/",
         "/usr/share/pico-sdk/src/**",
         "/usr/share/pico-sdk/lib/**",
