@@ -1,6 +1,7 @@
 #!/bin/bash
-
-PI_DIRECTORY="/run/media/koriwi/RPI-RP2"
+# this is just a convenience script
+# no guarantee that it works!
+PI_DIRECTORY="/run/media/$USER/RPI-RP2"
 pwd
 cd build &&
   cmake ../ &&
