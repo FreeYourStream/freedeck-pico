@@ -1,5 +1,6 @@
 #include <stdio.h>
 
+#include "freedeck.hpp"
 #include "freedeck_serial.hpp"
 #include "hardware/gpio.h"
 #include "hardware/i2c.h"
@@ -10,8 +11,6 @@
 #include <logo.hpp>
 #include <settings.hpp>
 #include <util.hpp>
-
-#include <util.hpp>
 void setup() {
   stdio_init_all();
   init_mux();
@@ -19,6 +18,7 @@ void setup() {
   init_oleds();
   init_sdcard();
   init_usb();
+  load_page(0);
 }
 
 void loop() {

@@ -1,6 +1,8 @@
 #include "freedeck_serial.hpp"
+#include "GFX.hpp"
 #include "bsp/board.h"
 #include "fd_usb.hpp"
+#include "freedeck.hpp"
 #include "init.hpp"
 #include "pico/stdio.h"
 #include "pico/stdlib.h"
@@ -10,10 +12,10 @@
 #include "tusb.h"
 #include "util.hpp"
 ////////////////////////7
-#include "f_util.h"
-#include "ff.h"
-#include "hw_config.h"
-void writeSerialLine(const char *line) {
+// #include "f_util.h"
+// #include "ff.h"
+// #include "hw_config.h"
+void write_serial_line(const char *line) {
   const uint32_t len = strlen(line) + 3;
   char lineCRN[len];
   strcpy(lineCRN, line);
@@ -24,17 +26,17 @@ void writeSerialLine(const char *line) {
   tud_cdc_write_flush();
 }
 
-void writeSerialChar(const char chr) {
+void write_serial_char(const char chr) {
   tud_cdc_write_char(chr);
   tud_cdc_write_flush();
 }
 
-void writeSerial(const char *line) {
+void write_serial(const char *line) {
   tud_cdc_write_str(line);
   tud_cdc_write_flush();
 }
 
-uint32_t combineBytes(char *numbers, uint8_t len) {
+uint32_t combine_bytes(char *numbers, uint8_t len) {
   unsigned long int number = 0;
   for (char i = 0; i < len; i++) {
     if (numbers[i] == 13)
@@ -44,7 +46,7 @@ uint32_t combineBytes(char *numbers, uint8_t len) {
   return number;
 }
 
-uint32_t readSerialBinary() {
+uint32_t read_serial_binary() {
   uint32_t available = tud_cdc_available();
   while (!available) {
     available = tud_cdc_available();
@@ -55,13 +57,13 @@ uint32_t readSerialBinary() {
     buf[i] = tud_cdc_read_char();
     if (buf[i] == '\n' || buf[i] == '\r') {
       buf[i] = '\0';
-      return combineBytes(buf, available);
+      return combine_bytes(buf, available);
     }
   }
   return INT32_MAX;
 }
 
-char *readSerialString(char *serial_string, uint32_t max_len) {
+char *read_serial_string(char *serial_string, uint32_t max_len) {
   uint32_t available = tud_cdc_available();
   while (!available) {
     available = tud_cdc_available();
@@ -85,30 +87,7 @@ char *readSerialString(char *serial_string, uint32_t max_len) {
 void sdcard() {
 
   process_usb();
-  unsigned char buffer[1024];
-  f_lseek(&fil, 37 * 16 + 7 * 1024L);
-  tud_cdc_write_str("seek done\n");
-  tud_cdc_write_flush();
-  process_usb();
-  UINT read;
-  f_read(&fil, &buffer, 1024, &read);
-  tud_cdc_write_str("read done\n");
-  tud_cdc_write_flush();
-  set_mux_address(0);
-  oled[0]->display(buffer);
-  process_usb();
-  uint16_t num = (uint16_t)buffer[0] | (uint16_t)buffer[1] << 8;
-  tud_cdc_write_str("conversion done\n");
-  tud_cdc_write_flush();
-  process_usb();
-  char num_str[4];
-  sprintf(num_str, "%d", num);
-  tud_cdc_write_str("sprintf done\n");
-  tud_cdc_write_flush();
-  tud_cdc_write_str(num_str);
-  tud_cdc_write_char('\n');
-  tud_cdc_write_flush();
-  process_usb();
+  load_page(0);
   // if (f_printf(&fil, "Hello, world!\n") < 0) {
   //   printf("f_printf failed\n");
   // }
@@ -160,7 +139,7 @@ void oled_write_line(uint32_t command) {
   char input[max_len + 1];
   memset(input, '\0', sizeof(input));
 
-  readSerialString(input, max_len);
+  read_serial_string(input, max_len);
   if (input) {
     set_mux_address(display);
     oled[display]->drawString(0, 8 * row, input, font_size);
@@ -170,7 +149,7 @@ void oled_write_line(uint32_t command) {
 
 void serial_api(uint32_t command) {
   if (command == 0x10) {
-    writeSerialLine("3.0.0P");
+    write_serial_line("3.0.0P");
   }
   if (command == 0x11) {
     sdcard();
@@ -188,6 +167,6 @@ void cdc_task(void) {
     return;
   if (!tud_cdc_available())
     return;
-  uint32_t command = readSerialBinary();
+  uint32_t command = read_serial_binary();
   serial_api(command);
 }

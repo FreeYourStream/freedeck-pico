@@ -1,4 +1,5 @@
 #define DEBUG 1
+
 #define BD_COUNT 6
 #define CONFIG_NAME "config.bin"
 #define LONG_PRESS_DURATION 250

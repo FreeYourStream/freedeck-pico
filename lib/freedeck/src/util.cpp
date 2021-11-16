@@ -1,5 +1,6 @@
 #include "util.hpp"
 #include "GFX.hpp"
+#include "freedeck.hpp"
 #include "hardware/gpio.h"
 #include "init.hpp"
 #include "settings.hpp"

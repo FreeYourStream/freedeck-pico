@@ -1,4 +1,6 @@
 #include "init.hpp"
+#include "f_util.h"
+#include "freedeck.hpp"
 #include "hardware/gpio.h"
 #include "hardware/i2c.h"
 #include "logo.hpp"
@@ -7,12 +9,9 @@
 #include <hw_config.h>
 #include <sd_card.h>
 ////////////////////////7
-#include "f_util.h"
-#include "ff.h"
-#include "hw_config.h"
-GFX *oled[BD_COUNT];
-sd_card_t *pSD = 0;
-FIL fil;
+// #include "ff.h"
+// #include "hw_config.h"
+
 void init_oleds() {
   i2c_init(i2c1, OLED_SPEED);                 // make this afap
   gpio_set_function(OLED_SDA, GPIO_FUNC_I2C); // Use GPIO2 as I2C
@@ -41,6 +40,12 @@ void init_sdcard() {
     o_debug("sdcard error 2");
     o_debug(FRESULT_str(fr), 1);
   }
+  f_lseek(&fil, 2);
+  UINT read;
+  char buffer[4];
+  f_read(&fil, &buffer, 4, NULL);
+  uint16_t num = (uint8_t)buffer[0] | (uint8_t)buffer[1] << 8;
+  image_data_offset = num * 16;
 }
 
 void init_button() {

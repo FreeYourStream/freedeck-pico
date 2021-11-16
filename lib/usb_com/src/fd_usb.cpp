@@ -30,6 +30,7 @@
 // #include "../../freedeck_serial/freedeck_serial.hpp"
 #include "bsp/board.h"
 #include "fd_usb.hpp"
+#include "freedeck.hpp"
 #include "init.hpp"
 #include "pico/bootrom.h"
 #include "settings.hpp"
