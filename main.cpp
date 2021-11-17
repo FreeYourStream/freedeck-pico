@@ -40,17 +40,20 @@ void loop() {
   //   set_mux_address(1);
   //   oled->invertColors(true);
   // }
-  static bool last = 0;
-  const uint32_t btn = board_button_read() || !gpio_get(19);
-  if (btn == 1 && btn != last) {
-    uint8_t keycode[6] = {HID_KEY_CONTROL_LEFT, HID_KEY_A};
-    setKeycode(keycode);
-    last = btn;
-  } else if (btn == 0 && btn != last) {
-    uint8_t keycode[6] = {HID_KEY_NONE};
-    setKeycode(keycode);
-    last = btn;
+  for (uint8_t i = 0; i < BD_COUNT; i++) {
+    check_button_state(i);
   }
+  // static bool last = 0;
+  // const uint32_t btn = board_button_read() || !gpio_get(19);
+  // if (btn == 1 && btn != last) {
+  //   uint8_t keycode[6] = {HID_KEY_CONTROL_LEFT, HID_KEY_A};
+  //   setKeycode(keycode);
+  //   last = btn;
+  // } else if (btn == 0 && btn != last) {
+  //   uint8_t keycode[6] = {HID_KEY_NONE};
+  //   setKeycode(keycode);
+  //   last = btn;
+  // }
 }
 
 int main() {

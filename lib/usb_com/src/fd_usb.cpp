@@ -48,10 +48,10 @@ enum {
   BLINK_SUSPENDED = 0,
 };
 
-uint8_t keycode[6] = {0};
+uint8_t keycode[7] = {0};
 static uint32_t blink_interval_ms = BLINK_NOT_MOUNTED;
 
-void setKeycode(uint8_t newKeycode[6]) {
+void setKeycode(uint8_t newKeycode[7]) {
   tud_cdc_write_str("pressed\n");
   for (uint8_t i = 0; i < 6; i++) {
     char buffer[4];
