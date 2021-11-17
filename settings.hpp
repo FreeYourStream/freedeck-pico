@@ -3,6 +3,8 @@
 
 #define BD_COUNT 6
 #define CONFIG_NAME "config.bin"
+#define CONFIG_NAME_TEMP "config.tmp"
+#define CONFIG_NAME_OLD "config.bin.old"
 #define LONG_PRESS_DURATION 250
 #define TIMEOUT_TIME 5L * 60L // timeout in seconds
 #define WAKE_ON_SERIAL true

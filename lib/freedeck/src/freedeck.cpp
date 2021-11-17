@@ -18,6 +18,7 @@ uint16_t image_data_offset = 0;
 uint16_t current_page = 0;
 uint16_t page_count = 0;
 uint8_t contrast = 0;
+uint16_t timeout_sec = TIMEOUT_TIME;
 
 void press_keys() {
   char i = 0;
@@ -54,16 +55,17 @@ void set_global_contrast(unsigned short c) {
   }
 }
 
-void wake_display_if_needed() {
-  if (board_millis() - last_action > (TIMEOUT_TIME * 1000L)) {
+bool wake_display_if_needed() {
+  if (board_millis() - last_action > (timeout_sec * 1000L)) {
     for (uint8_t i = 0; i < BD_COUNT; i++) {
       set_mux_address(i);
       oled[i]->displayON(true);
     }
     last_action = board_millis();
-    return;
+    return true;
   }
   last_action = board_millis();
+  return false;
 }
 
 void set_setting() {
@@ -89,7 +91,8 @@ uint8_t get_command(uint8_t button, uint8_t secondary) {
 }
 
 void on_button_press(uint8_t buttonIndex, uint8_t secondary) {
-  wake_display_if_needed();
+  if (wake_display_if_needed())
+    return;
   uint8_t command = get_command(buttonIndex, secondary) & 0xf;
   if (command == 1) {
     change_page();
@@ -153,6 +156,10 @@ void load_header_info() {
   char contrast_buf;
   f_read(&fil, &contrast_buf, 1, NULL);
   set_global_contrast(contrast_buf);
+
+  char timeout_buf[2];
+  f_read(&fil, &timeout_buf, 2, NULL);
+  timeout_sec = timeout_buf[0] | timeout_buf[1] << 8;
 }
 
 void post_setup() {
@@ -161,7 +168,7 @@ void post_setup() {
 }
 
 void sleep_task() {
-  if (board_millis() - last_action > (TIMEOUT_TIME * 1000L)) {
+  if (board_millis() - last_action > (timeout_sec * 1000L)) {
     for (uint8_t i = 0; i < BD_COUNT; i++) {
       set_mux_address(i);
       oled[i]->displayON(false);

@@ -123,6 +123,7 @@ void tud_suspend_cb(bool remote_wakeup_en) {
 
 // Invoked when usb bus is resumed
 void tud_resume_cb(void) {
+
   blink_interval_ms = BLINK_MOUNTED;
   for (int i = 0; i < BD_COUNT; i++) {
     set_mux_address(i);
@@ -178,13 +179,13 @@ void process_usb(void) {
     return; // not enough time
   start_ms += interval_ms;
 
-  uint32_t const btn = board_button_read();
-
   // Remote wakeup
-  if (tud_suspended() && btn) {
-    // Wake up host if we are in suspend mode
-    // and REMOTE_WAKEUP feature is enabled by host
-    tud_remote_wakeup();
+  if (tud_suspended()) {
+    bool const btn = gpio_get(BUTTON_PIN);
+    if (btn == BUTTON_DOWN)
+      // Wake up host if we are in suspend mode
+      // and REMOTE_WAKEUP feature is enabled by host
+      tud_remote_wakeup();
   } else {
     // Send the 1st of report chain, the rest will be sent by tud_hid_report_complete_cb()
     send_hid_report();

@@ -51,7 +51,6 @@ uint32_t read_serial_binary() {
   uint32_t available = tud_cdc_available();
   while (!available) {
     available = tud_cdc_available();
-    process_usb();
   }
   char buf[available];
   for (int i = 0; i < available; i++) {
@@ -68,7 +67,6 @@ char *read_serial_string(char *serial_string, uint32_t max_len) {
   uint32_t available = tud_cdc_available();
   while (!available) {
     available = tud_cdc_available();
-    process_usb();
   }
   char buf[available];
   if (available == 0)
@@ -85,21 +83,6 @@ char *read_serial_string(char *serial_string, uint32_t max_len) {
   return serial_string;
 }
 
-// void _rename_temp_file(char const *path) {
-//   if (SD.exists(path)) {
-//     SD.remove(path);
-//   }
-//   configFile.rename(SD.vwd(), path);
-// }
-
-// void _open_temp_file() {
-//   if (SD.exists(TEMP_FILE)) {
-//     SD.remove(TEMP_FILE);
-//   }
-//   configFile = SD.open(TEMP_FILE, O_WRONLY | O_CREAT);
-//   configFile.seekSet(0);
-// }
-
 uint32_t _get_file_size() {
   char numberChars[10];
   read_serial_string(numberChars, 10);
@@ -109,41 +92,40 @@ uint32_t _get_file_size() {
 void _save_new_config_from_serial() {
   // open temp file
   f_close(&fil);
-  process_usb();
   FIL tmp_fil;
-  f_open(&tmp_fil, "config.temp", FA_CREATE_ALWAYS | FA_WRITE);
-  process_usb();
+  f_open(&tmp_fil, CONFIG_NAME_TEMP, FA_CREATE_ALWAYS | FA_WRITE);
   //
   uint32_t fileSize = _get_file_size();
-  process_usb();
-
+  set_mux_address(0);
+  oled[0]->drawString(0, 2, "Updating!", 2);
+  oled[0]->display();
   uint32_t receivedBytes = 0;
   uint32_t chunkLength;
   int32_t ellapsed = board_millis();
   do {
     while (!tud_cdc_available()) {
-      process_usb();
     }
     char input[1024];
     chunkLength = tud_cdc_read(input, 1024);
     receivedBytes = receivedBytes + chunkLength;
 
     if (board_millis() - ellapsed > 250 || receivedBytes == fileSize) {
+      set_mux_address(1);
+      oled[1]->drawProgressBar(0, 0, 128, 64, (float)receivedBytes / (float)fileSize * 100);
+      oled[1]->display();
       ellapsed = board_millis();
       char num_char[10];
       sprintf(num_char, "%d", receivedBytes);
       write_serial_line(num_char);
-      process_usb();
     }
     f_write(&tmp_fil, input, chunkLength, NULL);
-    process_usb();
   } while (receivedBytes < fileSize);
   f_close(&tmp_fil);
 
   if (receivedBytes == fileSize) {
-    f_unlink("config.bin.old");
-    f_rename(CONFIG_NAME, "config.bin.old");
-    f_rename("config.temp", CONFIG_NAME);
+    f_unlink(CONFIG_NAME_OLD);               // delete old old config
+    f_rename(CONFIG_NAME, CONFIG_NAME_OLD);  // rename current to old
+    f_rename(CONFIG_NAME_TEMP, CONFIG_NAME); // make tmp to current
   }
   f_open(&fil, CONFIG_NAME, FA_READ);
 }
@@ -158,32 +140,16 @@ void _dump_config_over_serial() {
   UINT read_len = 0;
   char buff[CFG_TUD_CDC_TX_BUFSIZE];
   do {
-    process_usb();
     f_read(&fil, buff, sizeof(buff), &read_len);
     while (!tud_cdc_write_available()) {
-      process_usb();
     }
     tud_cdc_write(buff, read_len);
     tud_cdc_write_flush();
   } while (read_len == sizeof(buff));
   tud_cdc_write_flush();
-
-  process_usb();
 }
 
-void sdcard() {
-
-  process_usb();
-  load_page(0);
-  // if (f_printf(&fil, "Hello, world!\n") < 0) {
-  //   printf("f_printf failed\n");
-  // }
-  // fr = f_close(&fil);
-  // if (FR_OK != fr) {
-  //   tud_cdc_write_str("CLOSE KAPUTT\n");
-  //   tud_cdc_write_flush();
-  // }
-}
+void sdcard() { load_page(0); }
 
 void oled_command(uint32_t input) {
   uint8_t display = input % 0x10;
