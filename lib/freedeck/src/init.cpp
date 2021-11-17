@@ -40,12 +40,6 @@ void init_sdcard() {
     o_debug("sdcard error 2");
     o_debug(FRESULT_str(fr), 1);
   }
-  f_lseek(&fil, 2);
-  UINT read;
-  char buffer[4];
-  f_read(&fil, &buffer, 4, NULL);
-  uint16_t num = (uint8_t)buffer[0] | (uint8_t)buffer[1] << 8;
-  image_data_offset = num * 16;
 }
 
 void init_button() {

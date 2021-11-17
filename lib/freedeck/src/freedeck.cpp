@@ -9,13 +9,15 @@
 #include <GFX.hpp>
 #include <bsp/board.h>
 #include <fd_usb.hpp>
-#include <sd_card.h>
+uint32_t last_action = 0;
 Button buttons[BD_COUNT];
 GFX *oled[BD_COUNT];
 sd_card_t *pSD = 0;
 FIL fil;
 uint16_t image_data_offset = 0;
 uint16_t current_page = 0;
+uint16_t page_count = 0;
+uint8_t contrast = 0;
 
 void press_keys() {
   char i = 0;
@@ -25,13 +27,58 @@ void press_keys() {
     f_read(&fil, &key, 1, NULL);
     keycode[i] = key;
   } while (key != 0 && i++ < 7);
-  setKeycode(keycode);
+  set_keycode(keycode);
+}
+
+void press_special_key() {
+  char i = 0;
+  uint8_t buffer[2];
+  uint16_t key;
+  f_read(&fil, &buffer, 2, NULL);
+  key = buffer[0] | buffer[1] << 8;
+  set_special_code(key);
 }
 
 void change_page() {
   int16_t pageIndex;
   f_read(&fil, &pageIndex, 2, NULL);
   load_page(pageIndex);
+}
+void set_global_contrast(unsigned short c) {
+  if (c == 0)
+    c = 1;
+  contrast = c;
+  for (uint8_t buttonIndex = 0; buttonIndex < BD_COUNT; buttonIndex++) {
+    set_mux_address(buttonIndex, TYPE_DISPLAY);
+    oled[buttonIndex]->setContrast(c);
+  }
+}
+
+void wake_display_if_needed() {
+  if (board_millis() - last_action > (TIMEOUT_TIME * 1000L)) {
+    for (uint8_t i = 0; i < BD_COUNT; i++) {
+      set_mux_address(i);
+      oled[i]->displayON(true);
+    }
+    last_action = board_millis();
+    return;
+  }
+  last_action = board_millis();
+}
+
+void set_setting() {
+  uint8_t settingCommand;
+  f_read(&fil, &settingCommand, 1, NULL);
+  if (settingCommand == 1) { // decrease brightness
+    contrast = std::max(contrast - 20, 1);
+    set_global_contrast(contrast);
+  } else if (settingCommand == 2) { // increase brightness
+    contrast = std::min(contrast + 20, 255);
+    set_global_contrast(contrast);
+  } else if (settingCommand == 3) { // set brightness
+    f_read(&fil, &contrast, 1, NULL);
+    set_global_contrast(contrast);
+  }
 }
 
 uint8_t get_command(uint8_t button, uint8_t secondary) {
@@ -42,17 +89,19 @@ uint8_t get_command(uint8_t button, uint8_t secondary) {
 }
 
 void on_button_press(uint8_t buttonIndex, uint8_t secondary) {
+  wake_display_if_needed();
   uint8_t command = get_command(buttonIndex, secondary) & 0xf;
   if (command == 1) {
     change_page();
   } else if (command == 0) {
     press_keys();
-  } /*else if (command == 3) {
-    pressSpecialKey();
-  } else if (command == 4) {
-    sendText();
+  }
+  if (command == 3) {
+    press_special_key();
   } else if (command == 5) {
-    setSetting();
+    set_setting();
+  } /*else if (command == 4) {
+    sendText();
   }*/
 }
 
@@ -60,10 +109,10 @@ void on_button_release(uint8_t buttonIndex, uint8_t secondary) {
   uint8_t command = get_command(buttonIndex, secondary) & 0xf;
   if (command == 0) {
     uint8_t keycode[6] = {HID_KEY_NONE};
-    setKeycode(keycode);
-  } /*else if (command == 3) {
-    Consumer.releaseAll();
-  }*/
+    set_keycode(keycode);
+  } else if (command == 3) {
+    set_special_code(HID_KEY_NONE);
+  }
 }
 
 void display_image(int16_t imageNumber) {
@@ -79,8 +128,6 @@ void load_page(int16_t pageIndex) {
   current_page = pageIndex;
   for (uint8_t buttonIndex = 0; buttonIndex < BD_COUNT; buttonIndex++) {
     uint8_t command = get_command(buttonIndex, false);
-    // buttons[buttonIndex].onPressCallback = on_button_press; // to do: only do this initially
-    // buttons[buttonIndex].onReleaseCallback = on_button_release;
     buttons[buttonIndex].hasSecondary = command > 15;
     display_image(pageIndex * BD_COUNT + buttonIndex);
   }
@@ -90,6 +137,34 @@ void check_button_state(uint8_t buttonIndex) {
   set_mux_address(buttonIndex, TYPE_BUTTON);
   sleep_ms(1);
   uint8_t state = gpio_get(BUTTON_PIN);
+
   buttons[buttonIndex].update(state);
-  return;
+}
+
+void load_header_info() {
+  f_lseek(&fil, 2);
+  UINT read;
+  char buffer[4];
+  f_read(&fil, &buffer, 2, NULL);
+  uint16_t num = (uint8_t)buffer[0] | (uint8_t)buffer[1] << 8;
+  image_data_offset = num * 16;
+  page_count = (image_data_offset - 1) / BD_COUNT;
+
+  char contrast_buf;
+  f_read(&fil, &contrast_buf, 1, NULL);
+  set_global_contrast(contrast_buf);
+}
+
+void post_setup() {
+  load_header_info();
+  load_page(0);
+}
+
+void sleep_task() {
+  if (board_millis() - last_action > (TIMEOUT_TIME * 1000L)) {
+    for (uint8_t i = 0; i < BD_COUNT; i++) {
+      set_mux_address(i);
+      oled[i]->displayON(false);
+    }
+  }
 }

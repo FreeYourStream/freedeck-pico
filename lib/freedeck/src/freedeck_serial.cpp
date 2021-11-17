@@ -1,6 +1,7 @@
 #include "freedeck_serial.hpp"
 #include "GFX.hpp"
 #include "bsp/board.h"
+#include "f_util.h"
 #include "fd_usb.hpp"
 #include "freedeck.hpp"
 #include "init.hpp"
@@ -84,6 +85,92 @@ char *read_serial_string(char *serial_string, uint32_t max_len) {
   return serial_string;
 }
 
+// void _rename_temp_file(char const *path) {
+//   if (SD.exists(path)) {
+//     SD.remove(path);
+//   }
+//   configFile.rename(SD.vwd(), path);
+// }
+
+// void _open_temp_file() {
+//   if (SD.exists(TEMP_FILE)) {
+//     SD.remove(TEMP_FILE);
+//   }
+//   configFile = SD.open(TEMP_FILE, O_WRONLY | O_CREAT);
+//   configFile.seekSet(0);
+// }
+
+uint32_t _get_file_size() {
+  char numberChars[10];
+  read_serial_string(numberChars, 10);
+  return atol(numberChars);
+}
+
+void _save_new_config_from_serial() {
+  // open temp file
+  f_close(&fil);
+  process_usb();
+  FIL tmp_fil;
+  f_open(&tmp_fil, "config.temp", FA_CREATE_ALWAYS | FA_WRITE);
+  process_usb();
+  //
+  uint32_t fileSize = _get_file_size();
+  process_usb();
+
+  uint32_t receivedBytes = 0;
+  uint32_t chunkLength;
+  int32_t ellapsed = board_millis();
+  do {
+    while (!tud_cdc_available()) {
+      process_usb();
+    }
+    char input[1024];
+    chunkLength = tud_cdc_read(input, 1024);
+    receivedBytes = receivedBytes + chunkLength;
+
+    if (board_millis() - ellapsed > 250 || receivedBytes == fileSize) {
+      ellapsed = board_millis();
+      char num_char[10];
+      sprintf(num_char, "%d", receivedBytes);
+      write_serial_line(num_char);
+      process_usb();
+    }
+    f_write(&tmp_fil, input, chunkLength, NULL);
+    process_usb();
+  } while (receivedBytes < fileSize);
+  f_close(&tmp_fil);
+
+  if (receivedBytes == fileSize) {
+    f_unlink("config.bin.old");
+    f_rename(CONFIG_NAME, "config.bin.old");
+    f_rename("config.temp", CONFIG_NAME);
+  }
+  f_open(&fil, CONFIG_NAME, FA_READ);
+}
+
+void _dump_config_over_serial() {
+  f_lseek(&fil, 0);
+
+  uint32_t file_size = f_size(&fil);
+  char f_size_str[10];
+  sprintf(f_size_str, "%d", file_size);
+  write_serial_line(f_size_str);
+  UINT read_len = 0;
+  char buff[CFG_TUD_CDC_TX_BUFSIZE];
+  do {
+    process_usb();
+    f_read(&fil, buff, sizeof(buff), &read_len);
+    while (!tud_cdc_write_available()) {
+      process_usb();
+    }
+    tud_cdc_write(buff, read_len);
+    tud_cdc_write_flush();
+  } while (read_len == sizeof(buff));
+  tud_cdc_write_flush();
+
+  process_usb();
+}
+
 void sdcard() {
 
   process_usb();
@@ -148,11 +235,37 @@ void oled_write_line(uint32_t command) {
 }
 
 void serial_api(uint32_t command) {
+#ifdef WAKE_ON_SERIAL
+  wake_display_if_needed();
+#endif
   if (command == 0x10) {
-    write_serial_line("3.0.0P");
+    write_serial_line("2.1.0");
   }
   if (command == 0x11) {
-    sdcard();
+    write_serial_line("rp2040,pi,pico");
+  }
+  if (command == 0x20) { // read config
+    _dump_config_over_serial();
+  }
+  if (command == 0x21) { // write config
+    _save_new_config_from_serial();
+    post_setup();
+  }
+  if (command == 0x30) {
+    char cur_pag_str[6];
+    sprintf(cur_pag_str, "%d", current_page);
+    write_serial_line(cur_pag_str);
+  }
+  if (command == 0x31) { // set current page
+    char tar_pag_str[6];
+    read_serial_string(tar_pag_str, 6);
+    uint16_t target_page = strtol(tar_pag_str, NULL, 10);
+    if (target_page <= page_count) {
+      load_page(target_page);
+      write_serial_line(OK);
+    } else {
+      write_serial_line(ERROR);
+    }
   }
   if (command >= 0x1000 && command < 0x2000) {
     oled_command(command);
@@ -163,8 +276,6 @@ void serial_api(uint32_t command) {
 }
 
 void cdc_task(void) {
-  if (!tud_cdc_connected())
-    return;
   if (!tud_cdc_available())
     return;
   uint32_t command = read_serial_binary();

@@ -12,6 +12,11 @@ void o_debug(const char *message, uint display) {
   oled[display]->drawString(0, 0, message);
   oled[display]->display();
 }
+void o_debug(uint32_t number, uint display) {
+  char tmp[10];
+  sprintf(tmp, "%d", number);
+  o_debug(tmp, display);
+}
 #else
 void o_debug(const char *message, uint display) { (void *)message; }
 #endif
@@ -41,5 +46,6 @@ void set_mux_address(int address, uint8_t type) {
   int S3 = getBitValue(address, 3);
   gpio_put(S3_PIN, S3);
 #endif
+  sleep_ms(1);
 }
 void set_mux_address(int address) { set_mux_address(address, TYPE_DISPLAY); }

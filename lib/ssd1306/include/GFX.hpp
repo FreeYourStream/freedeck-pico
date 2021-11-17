@@ -1,4 +1,4 @@
-// #pragma once
+#pragma once
 
 #ifndef _GFX_H
 #define _GFX_H

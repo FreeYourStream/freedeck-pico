@@ -49,20 +49,36 @@ enum {
 };
 
 uint8_t keycode[7] = {0};
+uint16_t special_code = 0;
+
 static uint32_t blink_interval_ms = BLINK_NOT_MOUNTED;
 
-void setKeycode(uint8_t newKeycode[7]) {
+void set_keycode(uint8_t newKeycode[7]) {
+#ifdef DEBUG
   tud_cdc_write_str("pressed\n");
   for (uint8_t i = 0; i < 6; i++) {
     char buffer[4];
-    itoa(newKeycode[i], buffer, 10);
+    sprintf(buffer, "%d", newKeycode[i]);
     tud_cdc_write_str(buffer);
     tud_cdc_write_char('\n');
   }
   tud_cdc_write_flush();
+#endif
   for (int i = 0; i < 6; i++) {
     keycode[i] = newKeycode[i];
   }
+}
+
+void set_special_code(uint16_t newKeycode) {
+#ifdef DEBUG
+  tud_cdc_write_str("pressed\n");
+  char buffer[4];
+  sprintf(buffer, "%d", newKeycode);
+  tud_cdc_write_str(buffer);
+  tud_cdc_write_char('\n');
+  tud_cdc_write_flush();
+#endif
+  special_code = newKeycode;
 }
 
 /*------------- MAIN -------------*/
@@ -135,6 +151,17 @@ static void send_hid_report() {
       tud_hid_keyboard_report(REPORT_ID_KEYBOARD, 0, NULL);
     }
     has_keyboard_key = false;
+  }
+
+  static bool has_consumer_key = false;
+  if (special_code != 0) {
+    tud_hid_report(REPORT_ID_CONSUMER_CONTROL, &special_code, 2);
+    has_consumer_key = true;
+  } else {
+    // send empty key report (release key) if previously has key pressed
+    if (has_consumer_key)
+      tud_hid_report(REPORT_ID_CONSUMER_CONTROL, &special_code, 2);
+    has_consumer_key = false;
   }
 }
 

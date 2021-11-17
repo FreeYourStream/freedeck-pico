@@ -18,12 +18,13 @@ void setup() {
   init_oleds();
   init_sdcard();
   init_usb();
-  load_page(0);
+  post_setup();
 }
 
 void loop() {
   process_usb();
   cdc_task();
+  sleep_task();
   // if (board_millis() % 3000 == 0) {
   //   fillScreen(0);
   //   fillScreen(1);
