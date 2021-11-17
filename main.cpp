@@ -22,7 +22,7 @@ void setup() {
   post_setup();
 }
 
-void loop2() {
+void main_loop() {
   while (true) {
     cdc_task();
     sleep_task();
@@ -32,13 +32,15 @@ void loop2() {
   }
 }
 
-void loop() { process_usb(); }
+void loop_usb() {
+  while (true) {
+    process_usb();
+  }
+}
 
 int main() {
   setup();
-  multicore_launch_core1(loop2);
-  while (true) {
-    loop();
-  }
+  multicore_launch_core1(main_loop);
+  loop_usb();
   return 0;
 }
