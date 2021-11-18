@@ -244,6 +244,8 @@ void serial_api(uint32_t command) {
 void cdc_task(void) {
   if (!tud_cdc_available())
     return;
+  if (read_serial_binary() != 0x3)
+    return;
   uint32_t command = read_serial_binary();
   serial_api(command);
 }
