@@ -18,4 +18,4 @@ jobs:
         with:
           artifacts: "build/freedeck-pico.uf2"
           token: ${{ secrets.GITHUB_TOKEN }}
-          tag: "stable"
+          tag: "dev"
