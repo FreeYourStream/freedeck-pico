@@ -24,4 +24,4 @@ jobs:
           allowUpdates: true
           artifacts: "build/freedeck-pico.uf2"
           token: ${{ secrets.GITHUB_TOKEN }}
-          tag: "$FW_VERSION"
+          tag: "${{ env.FW_VERSION }}"
