@@ -19,6 +19,7 @@ jobs:
         run: cd build && cmake --build . -j
       - uses: ncipollo/release-action@v1
         with:
+          allowUpdates: true
           artifacts: "build/freedeck-pico.uf2"
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: "dev"
