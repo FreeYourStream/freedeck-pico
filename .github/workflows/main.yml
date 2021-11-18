@@ -1,11 +1,16 @@
 name: BUILD
-on: push
+on:
+  push:
+    branches:
+      - "master"
 
 jobs:
   compile:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: set env
+        run: echo "FW_VERSION=$(cat version.hpp | sed "s/#define //" | sed "s/VERSION  //")" >> $GITHUB_ENV
       - name: install cmake
         run: sudo apt update && sudo apt install -y cmake gcc-arm-none-eabi
       - name: make build dir
@@ -16,6 +21,7 @@ jobs:
         run: cd build && cmake --build . -j
       - uses: ncipollo/release-action@v1
         with:
+          allowUpdates: true
           artifacts: "build/freedeck-pico.uf2"
           token: ${{ secrets.GITHUB_TOKEN }}
-          tag: "stable"
+          tag: "$FW_VERSION"

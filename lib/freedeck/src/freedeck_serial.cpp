@@ -12,6 +12,7 @@
 #include "stdlib.h"
 #include "tusb.h"
 #include "util.hpp"
+#include "version.hpp"
 ////////////////////////7
 // #include "f_util.h"
 // #include "ff.h"
@@ -205,7 +206,7 @@ void serial_api(uint32_t command) {
   wake_display_if_needed();
 #endif
   if (command == 0x10) {
-    write_serial_line("2.1.0");
+    write_serial_line(VERSION);
   }
   if (command == 0x11) {
     write_serial_line("rp2040,pi,pico");
