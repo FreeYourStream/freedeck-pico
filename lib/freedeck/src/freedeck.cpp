@@ -169,6 +169,8 @@ void post_setup() {
 }
 
 void sleep_task() {
+  if (timeout_sec == 0)
+    return;
   if (board_millis() - last_action > (timeout_sec * 1000L)) {
     for (uint8_t i = 0; i < BD_COUNT; i++) {
       set_mux_address(i);
