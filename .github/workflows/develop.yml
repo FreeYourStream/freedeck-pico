@@ -23,4 +23,5 @@ jobs:
           artifacts: "build/freedeck-pico.uf2"
           token: ${{ secrets.GITHUB_TOKEN }}
           body: always up-to-date. maybe unstable
+          tag: "dev"
           commit: develop
