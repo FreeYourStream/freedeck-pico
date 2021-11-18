@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.13)
+set(PICO_SDK_FETCH_FROM_GIT on)
 include(./DownloadProject/DownloadProject.cmake)
 # set(CMAKE_BUILD_TYPE Debug)
 
@@ -6,7 +7,7 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 # initialize the SDK based on PICO_SDK_PATH
 # note: this must happen before project()
-include($ENV{PICO_SDK_PATH}/pico_sdk_init.cmake)
+include(pico_sdk_import.cmake)
 project(freedeck-pico C CXX ASM)
 
 # initialize the Raspberry Pi Pico SDK
