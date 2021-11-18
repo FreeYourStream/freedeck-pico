@@ -1,0 +1,22 @@
+name: BUILD
+on: push
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: install cmake
+        run: apt update && apt install -y cmake gcc-arm-none-eabi
+      - name: make build dir
+        run: mkdir build
+      - name: cmake configure
+        run: cd build && cmake ../
+      - name: cmake build
+        run: cd build && cmake --build . -j
+      - uses: ncipollo/release-action@v1
+        with:
+          artifacts: "build/freedeck-pico.uf2"
+          body: "dev build"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: "dev"
