@@ -7,7 +7,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: install cmake
-        run: apt update && apt install -y cmake gcc-arm-none-eabi
+        run: sudo apt update && sudo apt install -y cmake gcc-arm-none-eabi
       - name: make build dir
         run: mkdir build
       - name: cmake configure
