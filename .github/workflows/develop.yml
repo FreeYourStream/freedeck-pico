@@ -21,4 +21,4 @@ jobs:
         with:
           artifacts: "build/freedeck-pico.uf2"
           token: ${{ secrets.GITHUB_TOKEN }}
-          tag: "dev-${{ steps.vars.outputs.sha_short }}"
+          tag: "dev"
