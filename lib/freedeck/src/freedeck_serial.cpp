@@ -234,6 +234,11 @@ void serial_api(uint32_t command) {
       write_serial_line(ERROR);
     }
   }
+  if (command == 0x32) {
+    char pag_count_str[6];
+    sprintf(pag_count_str, "%d", page_count);
+    write_serial_line(pag_count_str);
+  }
   if (command >= 0x1000 && command < 0x2000) {
     oled_command(command);
   }
