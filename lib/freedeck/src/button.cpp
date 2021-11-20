@@ -1,7 +1,7 @@
 #include "button.hpp"
-#include "pico/stdlib.h"
 #include "settings.hpp"
 #include <bsp/board.h>
+#include <pico/stdlib.h>
 
 void Button::update(bool new_state) {
   // if the button is being held down and we are waiting for

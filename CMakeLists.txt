@@ -12,7 +12,7 @@ project(freedeck-pico C CXX ASM)
 
 # initialize the Raspberry Pi Pico SDK
 pico_sdk_init()
-
+set(CMAKE_EXPORT_COMPILE_COMMANDS true)
 download_project(
   PROJ fatfs_pico
   GIT_REPOSITORY https://github.com/carlk3/no-OS-FatFS-SD-SPI-RPi-Pico.git

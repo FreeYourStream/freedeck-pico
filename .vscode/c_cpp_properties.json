@@ -1,15 +1,23 @@
 {
   "configurations": [
     {
+      "browse": {
+        "path": ["${workspaceFolder}"]
+      },
       "name": "Linux",
       "includePath": [
-        "${workspaceFolder}/lib/**",
-        "${workspaceFolder}/build/**",
-        "${workspaceFolder}/",
-        "build/pico-sdk/src/**",
-        "build/generated/**",
-        "build/generated/pico_base/"
+        // "${workspaceFolder}/lib/**",
+        // "${workspaceFolder}/",
+        // "${workspaceFolder}/build/pico-sdk/src/**",
+        // "${workspaceFolder}/build/generated/**",
+        // "${workspaceFolder}/build/generated/pico_base/",
+        // "${workspaceFolder}/build/_deps/pico_sdk-src/src/common/pico_stdlib/include/",
+        // "${workspaceFolder}/build/_deps/pico_sdk-src/src/boards/include/boards/",
+        // "${workspaceFolder}/build/_deps/pico_sdk-src/src/rp2_common/pico_stdio/include/",
+        // "${workspaceFolder}/build/_deps/pico_sdk-src/src/common/pico_time/include/",
+        // "${workspaceFolder}/build/_deps/pico_sdk-src/src/rp2_common/hardware_timer/include/"
       ],
+      "compileCommands": "build/compile_commands.json",
       "defines": [],
       "compilerPath": "/usr/bin/clang",
       "cStandard": "c17",

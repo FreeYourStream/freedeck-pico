@@ -54,7 +54,8 @@
     "error.h": "c",
     "time.h": "c",
     "config.h": "c",
-    "version.h": "c"
+    "version.h": "c",
+    "ff.h": "c"
   },
   "C_Cpp.errorSquiggles": "Enabled"
 }

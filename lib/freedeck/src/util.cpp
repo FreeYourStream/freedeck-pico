@@ -1,9 +1,9 @@
 #include "util.hpp"
 #include "GFX.hpp"
 #include "freedeck.hpp"
-#include "hardware/gpio.h"
 #include "init.hpp"
 #include "settings.hpp"
+#include <hardware/gpio.h>
 
 #ifdef DEBUG
 void o_debug(const char *message, uint display) {

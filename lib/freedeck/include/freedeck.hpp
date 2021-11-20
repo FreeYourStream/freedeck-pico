@@ -1,7 +1,7 @@
 #pragma once
+#include "GFX.hpp"
 #include "button.hpp"
-#include <GFX.hpp>
-#include <sd_card.h>
+#include "sd_card.h"
 extern GFX *oled[];
 extern sd_card_t *pSD;
 extern FIL fil;
