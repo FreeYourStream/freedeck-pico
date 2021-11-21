@@ -1,16 +1,13 @@
 #include "init.hpp"
-#include "f_util.h"
 #include "freedeck.hpp"
-#include "hardware/gpio.h"
-#include "hardware/i2c.h"
 #include "logo.hpp"
 #include "settings.hpp"
 #include "util.hpp"
+#include <f_util.h>
+#include <hardware/gpio.h>
+#include <hardware/i2c.h>
 #include <hw_config.h>
 #include <sd_card.h>
-////////////////////////7
-// #include "ff.h"
-// #include "hw_config.h"
 
 void init_oleds() {
   i2c_init(i2c1, OLED_SPEED);                 // make this afap

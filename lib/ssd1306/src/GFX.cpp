@@ -44,7 +44,7 @@ void GFX::drawString(int x, int row, std::string str, int scale, colors color) {
   int x_tmp = x;
 
   while (str.length()) {
-    this->drawChar(x_tmp, row * 8, str.front(), scale, color);
+    this->drawChar(x_tmp, row, str.front(), scale, color);
     x_tmp += ((uint8_t)font[1]) + 1;
     str.erase(str.begin());
   }

@@ -1,13 +1,8 @@
-#include <string.h>
-//
-#include "my_debug.h"
-//
 #include "hw_config.h"
-//
-#include "ff.h" /* Obtains integer types */
-//
-#include "diskio.h" /* Declarations of disk functions */
-#include "sd_card.h"
+#include <diskio.h> /* Declarations of disk functions */
+#include <ff.h>     /* Obtains integer types */
+#include <sd_card.h>
+#include <string.h>
 void spi0_dma_isr();
 static spi_t spis[] = { // One for each SPI.
     {

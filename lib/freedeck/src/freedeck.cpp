@@ -2,13 +2,13 @@
 #include "button.hpp"
 #include "freedeck_serial.hpp"
 
+#include "GFX.hpp"
 #include "init.hpp"
-#include "pico/stdlib.h"
 #include "settings.hpp"
 #include "util.hpp"
-#include <GFX.hpp>
 #include <bsp/board.h>
 #include <fd_usb.hpp>
+#include <pico/stdlib.h>
 uint32_t last_action = 0;
 Button buttons[BD_COUNT];
 GFX *oled[BD_COUNT];

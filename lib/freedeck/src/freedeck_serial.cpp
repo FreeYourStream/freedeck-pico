@@ -1,22 +1,18 @@
 #include "freedeck_serial.hpp"
 #include "GFX.hpp"
-#include "bsp/board.h"
-#include "f_util.h"
-#include "fd_usb.hpp"
 #include "freedeck.hpp"
 #include "init.hpp"
-#include "pico/stdio.h"
-#include "pico/stdlib.h"
 #include "settings.hpp"
-#include "stdint.h"
-#include "stdlib.h"
-#include "tusb.h"
 #include "util.hpp"
 #include "version.hpp"
-////////////////////////7
-// #include "f_util.h"
-// #include "ff.h"
-// #include "hw_config.h"
+#include <bsp/board.h>
+#include <f_util.h>
+#include <fd_usb.hpp>
+#include <pico/stdio.h>
+#include <pico/stdlib.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <tusb.h>
 void write_serial_line(const char *line) {
   const uint32_t len = strlen(line) + 3;
   char lineCRN[len];
@@ -56,9 +52,9 @@ uint32_t read_serial_binary() {
   char buf[available];
   for (int i = 0; i < available; i++) {
     buf[i] = tud_cdc_read_char();
-    if (buf[i] == '\n' || buf[i] == '\r') {
+    if (buf[i] == '\n') {
       buf[i] = '\0';
-      return combine_bytes(buf, available);
+      return combine_bytes(buf, i);
     }
   }
   return INT32_MAX;
@@ -75,9 +71,9 @@ char *read_serial_string(char *serial_string, uint32_t max_len) {
   for (int i = 0; i < available; i++) {
 
     buf[i] = tud_cdc_read_char();
-    if (buf[i] == '\n' || buf[i] == '\r') {
+    if (buf[i] == '\n') {
       buf[i] = '\0';
-      strncpy(serial_string, buf, max_len);
+      strncpy(serial_string, buf, i);
       return serial_string;
     }
   }
@@ -152,42 +148,41 @@ void _dump_config_over_serial() {
 
 void sdcard() { load_page(0); }
 
-void oled_command(uint32_t input) {
-  uint8_t display = input % 0x10;
-  input = input / 0x10;
-  uint8_t arg = input % 0x10;
-  input = input / 0x10;
-  uint8_t command = input % 0x10;
-  if (command == 0) {
-    if (!arg) {
-      set_mux_address(display);
-      oled[display]->initOled();
-    } else {
-      for (int i = 0; i < BD_COUNT; i++) {
-        set_mux_address(i);
-        oled[display]->initOled();
-      }
-    }
-  }
-  if (command == 1) {
-    if (arg < 2) {
-      set_mux_address(display);
-      oled[display]->displayON(arg);
-    } else {
-      for (int i = 0; i < BD_COUNT; i++) {
-        set_mux_address(i);
-        oled[i]->displayON(arg - 2);
-      }
+void oled_clear() {
+  char display = read_serial_binary();
+  if (display < BD_COUNT) {
+    set_mux_address(display);
+    oled[display]->clear();
+    oled[display]->display();
+  } else {
+    for (int i = 0; i < BD_COUNT; i++) {
+      set_mux_address(i);
+      oled[i]->clear();
+      oled[i]->display();
     }
   }
 }
 
-void oled_write_line(uint32_t command) {
-  uint8_t row = command % 0x10;
-  command = command / 0x10;
-  uint8_t display = command % 0x10;
-  command = command / 0x10;
-  uint8_t font_size = command % 0x10;
+void oled_power() {
+  char display = read_serial_binary();
+  char power_state = read_serial_binary();
+  if (power_state > 1)
+    return;
+  if (display < BD_COUNT) {
+    set_mux_address(display);
+    oled[display]->displayON(power_state);
+  } else {
+    for (int i = 0; i < BD_COUNT; i++) {
+      set_mux_address(i);
+      oled[i]->displayON(power_state);
+    }
+  }
+}
+
+void oled_write_line() {
+  uint8_t display = read_serial_binary();
+  uint8_t row = read_serial_binary();
+  uint8_t font_size = read_serial_binary();
   font_size > 1 ? font_size : 1;
   uint8_t max_len = 10;
   char input[max_len + 1];
@@ -201,14 +196,32 @@ void oled_write_line(uint32_t command) {
   }
 }
 
+void oled_write_data() {
+  uint8_t display = read_serial_binary();
+
+  uint16_t received = 0;
+  unsigned char buffer[1024];
+  do {
+    while (!tud_cdc_available()) {
+    };
+    char temp[64];
+    size_t len = tud_cdc_read(temp, 64);
+    memcpy(&buffer[received], temp, len);
+    received += len;
+  } while (received < 1024);
+
+  set_mux_address(display);
+  oled[display]->display(buffer);
+}
+
 void serial_api(uint32_t command) {
 #ifdef WAKE_ON_SERIAL
   wake_display_if_needed();
 #endif
-  if (command == 0x10) {
+  if (command == 0x10) { // get firmware version
     write_serial_line(VERSION);
   }
-  if (command == 0x11) {
+  if (command == 0x11) { // board type
     write_serial_line("rp2040,pi,pico");
   }
   if (command == 0x20) { // read config
@@ -218,7 +231,7 @@ void serial_api(uint32_t command) {
     _save_new_config_from_serial();
     post_setup();
   }
-  if (command == 0x30) {
+  if (command == 0x30) { // get current page
     char cur_pag_str[6];
     sprintf(cur_pag_str, "%d", current_page);
     write_serial_line(cur_pag_str);
@@ -229,28 +242,35 @@ void serial_api(uint32_t command) {
     uint16_t target_page = strtol(tar_pag_str, NULL, 10);
     if (target_page <= page_count) {
       load_page(target_page);
-      write_serial_line(OK);
     } else {
       write_serial_line(ERROR);
     }
   }
-  if (command == 0x32) {
+  if (command == 0x32) { // get page count
     char pag_count_str[6];
     sprintf(pag_count_str, "%d", page_count);
     write_serial_line(pag_count_str);
   }
-  if (command >= 0x1000 && command < 0x2000) {
-    oled_command(command);
+  if (command == 0x40) { // clear screen
+    oled_clear();
   }
-  if (command >= 0x2000 && command < 0x3000) {
-    oled_write_line(command);
+  if (command == 0x41) { // turn screen on/off
+    oled_power();
+  }
+  if (command == 0x42) { // oled write text
+    oled_write_line();
+  }
+  if (command == 0x43) { // oled send data/image
+    oled_write_data();
   }
 }
 
 void cdc_task(void) {
+
   if (!tud_cdc_available())
     return;
-  if (read_serial_binary() != 0x3)
+  uint32_t start = read_serial_binary();
+  if (start != 0x3)
     return;
   uint32_t command = read_serial_binary();
   serial_api(command);
