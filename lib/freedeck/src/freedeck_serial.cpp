@@ -49,18 +49,14 @@ uint32_t read_serial_binary() {
   while (!available) {
     available = tud_cdc_available();
   }
-  // o_debug(available, 2);
   char buf[available];
   for (int i = 0; i < available; i++) {
     buf[i] = tud_cdc_read_char();
-    if (buf[i] == '\n' || buf[i] == '\r') {
+    if (buf[i] == '\n') {
       buf[i] = '\0';
-      return combine_bytes(buf, available);
+      return combine_bytes(buf, i);
     }
   }
-  // o_debug(buf[0], 0);
-  // o_debug(buf[1], 0);
-  // o_debug(buf[2], 0);
   return INT32_MAX;
 }
 
@@ -75,9 +71,9 @@ char *read_serial_string(char *serial_string, uint32_t max_len) {
   for (int i = 0; i < available; i++) {
 
     buf[i] = tud_cdc_read_char();
-    if (buf[i] == '\n' || buf[i] == '\r') {
+    if (buf[i] == '\n') {
       buf[i] = '\0';
-      strncpy(serial_string, buf, max_len);
+      strncpy(serial_string, buf, i);
       return serial_string;
     }
   }
@@ -267,21 +263,15 @@ void serial_api(uint32_t command) {
   if (command == 0x43) { // oled send data/image
     oled_write_data();
   }
-  write_serial_line(OK);
 }
 
 void cdc_task(void) {
 
-  o_debug("before");
   if (!tud_cdc_available())
     return;
-  o_debug("after", 1);
   uint32_t start = read_serial_binary();
-  o_debug(start, 1);
   if (start != 0x3)
     return;
-  o_debug("got command", 2);
   uint32_t command = read_serial_binary();
-  o_debug(command, 1);
   serial_api(command);
 }
