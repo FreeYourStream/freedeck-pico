@@ -152,7 +152,7 @@ void load_header_info() {
   f_read(&fil, &buffer, 2, NULL);
   uint16_t num = (uint8_t)buffer[0] | (uint8_t)buffer[1] << 8;
   image_data_offset = num * 16;
-  page_count = (image_data_offset - 1) / BD_COUNT;
+  page_count = (num - 1) / BD_COUNT;
 
   char contrast_buf;
   f_read(&fil, &contrast_buf, 1, NULL);
