@@ -57,6 +57,8 @@ void set_global_contrast(unsigned short c) {
 }
 
 bool wake_display_if_needed() {
+  if (timeout_sec == 0)
+    return false;
   if (board_millis() - last_action > (timeout_sec * 1000L)) {
     for (uint8_t i = 0; i < BD_COUNT; i++) {
       set_mux_address(i);
