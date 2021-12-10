@@ -19,6 +19,8 @@ void Button::update(bool new_state) {
       return;
     longPressExecuted = true;
     callLongPress();
+    sleep_ms(100);
+    callLongRelease();
 
   } else if (state == BUTTON_UP && new_state == BUTTON_DOWN) { // getting pressed down
     state = new_state;
@@ -41,7 +43,6 @@ void Button::update(bool new_state) {
         callShortRelease();
       } else {
         longPressExecuted = false;
-        callLongRelease();
       }
     } else {
       callShortRelease();
