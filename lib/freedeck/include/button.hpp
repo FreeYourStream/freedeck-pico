@@ -9,7 +9,7 @@ public:
   uint8_t index = 0;
   bool state = BUTTON_UP;
   uint32_t pressedSince = 0;
-  bool longPressExecuted = false;
+  bool pressExecuted = false;
   bool hasSecondary = 0;
 
   CallbackType onPressCallback;
