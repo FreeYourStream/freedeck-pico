@@ -46,5 +46,6 @@ void set_mux_address(int address, uint8_t type) {
   int S3 = getBitValue(address, 3);
   gpio_put(S3_PIN, S3);
 #endif
+  sleep_ms(1);
 }
 void set_mux_address(int address) { set_mux_address(address, TYPE_DISPLAY); }
