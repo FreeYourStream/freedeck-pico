@@ -1,4 +1,4 @@
-name: BUILD
+name: stable build
 on:
   push:
     branches:
