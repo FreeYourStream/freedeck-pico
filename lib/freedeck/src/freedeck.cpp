@@ -27,9 +27,9 @@ void press_keys() {
   do {
     f_read(&fil, &key, 1, NULL);
     keycode[i] = key;
-    set_keycode(keycode);
-    sleep_ms(11);
   } while (key != 0 && i++ < 7);
+  set_keycode(keycode);
+  sleep_ms(11);
 }
 
 void press_special_key() {
