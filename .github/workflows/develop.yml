@@ -11,9 +11,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/cache@v2
         with:
-          path: |
-            build/_deps
-            build/pico-sdk
+          path: ./build/*
           key: ${{ runner.os }}-build-${{ hashFiles('pico_sdk_import.cmake') }}
           restore-keys: |
             ${{ runner.os }}-build-
