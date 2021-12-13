@@ -57,6 +57,8 @@ void set_global_contrast(unsigned short c) {
 }
 
 bool wake_display_if_needed() {
+  if (timeout_sec == 0)
+    return false;
   if (board_millis() - last_action > (timeout_sec * 1000L)) {
     for (uint8_t i = 0; i < BD_COUNT; i++) {
       set_mux_address(i);
@@ -153,7 +155,6 @@ void load_header_info() {
   uint16_t num = (uint8_t)buffer[0] | (uint8_t)buffer[1] << 8;
   image_data_offset = num * 16;
   page_count = (num - 1) / BD_COUNT;
-
   char contrast_buf;
   f_read(&fil, &contrast_buf, 1, NULL);
   set_global_contrast(contrast_buf);

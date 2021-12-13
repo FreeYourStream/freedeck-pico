@@ -9,6 +9,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - uses: actions/cache@v2
+        with:
+          path: ./build/*
+          key: ${{ runner.os }}-build-${{ hashFiles('pico_sdk_import.cmake') }}
+          restore-keys: |
+            ${{ runner.os }}-build-
       - name: set env
         run: echo "FW_VERSION=$(cat version.hpp | sed "s/#define //" | sed "s/VERSION //" | sed "s/\"//g")" >> $GITHUB_ENV
       - name: install cmake
