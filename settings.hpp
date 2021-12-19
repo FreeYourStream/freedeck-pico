@@ -22,6 +22,6 @@
 #define OLED_ADDRESS 0x3C
 
 #define OLED_SPEED 1200000
-
+#define SD_MHZ 16
 #define OK "ok"
 #define ERROR "error"
