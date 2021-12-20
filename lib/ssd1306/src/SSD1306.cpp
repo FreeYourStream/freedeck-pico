@@ -1,6 +1,6 @@
 #include "SSD1306.hpp"
 #include "string.h"
-#define TIMEOUT 20000
+#define TIMEOUT 240000
 /*!
     @brief  Constructor for I2C-interfaced OLED display.
     @param  DevAddr
