@@ -62,6 +62,7 @@ void set_keycode(uint8_t newKeycode[7]) {
 #endif
   for (int i = 0; i < 6; i++) {
     keycode[i] = newKeycode[i];
+    sleep_ms(20);
   }
 }
 
