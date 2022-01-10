@@ -55,28 +55,21 @@ static uint32_t blink_interval_ms = BLINK_NOT_MOUNTED;
 
 void set_keycode(uint8_t newKeycode[7]) {
 #ifdef DEBUG
-  tud_cdc_write_str("pressed\n");
   for (uint8_t i = 0; i < 6; i++) {
     char buffer[4];
     sprintf(buffer, "%d", newKeycode[i]);
-    tud_cdc_write_str(buffer);
-    tud_cdc_write_char('\n');
   }
-  tud_cdc_write_flush();
 #endif
   for (int i = 0; i < 6; i++) {
     keycode[i] = newKeycode[i];
+    sleep_ms(20);
   }
 }
 
 void set_special_code(uint16_t newKeycode) {
 #ifdef DEBUG
-  tud_cdc_write_str("pressed\n");
   char buffer[4];
   sprintf(buffer, "%d", newKeycode);
-  tud_cdc_write_str(buffer);
-  tud_cdc_write_char('\n');
-  tud_cdc_write_flush();
 #endif
   special_code = newKeycode;
 }

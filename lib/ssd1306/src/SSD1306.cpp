@@ -1,6 +1,7 @@
 #include "SSD1306.hpp"
+#include "settings.hpp"
 #include "string.h"
-#define TIMEOUT 20000
+#define TIMEOUT 240000
 /*!
     @brief  Constructor for I2C-interfaced OLED display.
     @param  DevAddr
@@ -43,10 +44,10 @@ void SSD1306::init() {
   this->sendCommand(0x00);
 
   this->sendCommand(SSD1306_SETDISPLAYCLOCKDIV);
-  this->sendCommand(0x80);
+  this->sendCommand(REFRESH_FREQUENCY);
 
   this->sendCommand(SSD1306_SETPRECHARGE);
-  this->sendCommand(0x22);
+  this->sendCommand(PRE_CHARGE_PERIOD);
 
   this->sendCommand(SSD1306_SETCOMPINS);
   this->sendCommand(0x12);
