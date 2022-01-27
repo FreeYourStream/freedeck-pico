@@ -108,20 +108,19 @@ void tud_umount_cb(void) { blink_interval_ms = BLINK_NOT_MOUNTED; }
 void tud_suspend_cb(bool remote_wakeup_en) {
   (void)remote_wakeup_en;
   blink_interval_ms = BLINK_SUSPENDED;
-  for (int i = 0; i < BD_COUNT; i++) {
-    set_mux_address(i);
-    oled[i]->displayON(0);
-  }
+  // for (int i = 0; i < BD_COUNT; i++) {
+  //   set_mux_address(i);
+  //   oled[i]->displayON(0);
+  // }
 }
 
 // Invoked when usb bus is resumed
 void tud_resume_cb(void) {
-
   blink_interval_ms = BLINK_MOUNTED;
-  for (int i = 0; i < BD_COUNT; i++) {
-    set_mux_address(i);
-    oled[i]->displayON(1);
-  }
+  // for (int i = 0; i < BD_COUNT; i++) {
+  //   set_mux_address(i);
+  //   oled[i]->displayON(1);
+  // }
 }
 
 //--------------------------------------------------------------------+
