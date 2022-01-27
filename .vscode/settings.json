@@ -1,5 +1,6 @@
 {
   "C_Cpp.clang_format_fallbackStyle": "{ ColumnLimit: 100 }",
+  "C_Cpp.loggingLevel": "Debug",
   "files.associations": {
     "tusb.h": "c",
     "board.h": "c",
