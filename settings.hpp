@@ -44,8 +44,11 @@
 // #define REFRESH_FREQUENCY 0xc1
 // #define REFRESH_FREQUENCY 0x80
 
+// SD card configuration
 // for faster sdcards
 #define SD_MHZ 16
+// for slower sdcards
+// #define SD_MHZ 5
 #define SD_SPI spi1
 #define SD_MISO 8
 #define SD_MOSI 11
@@ -53,8 +56,6 @@
 #define SD_CS 9
 #define SD_DETECT 24 // leave this as 24 if you dont know what it means
 
-// for slower sdcards
-// #define SD_MHZ 5
 #define OK "ok"
 #define ERROR "error"
 
