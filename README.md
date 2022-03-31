@@ -4,6 +4,8 @@
 
 ### It is still considered unstable. Be brave and help me testing it :)
 
+## PCB will be released soon. Beta Gerber-files are available on discord :)
+
 # Installation
 
 Download the compiled firmware or compile it yourself (if you need to make changes to the settings)
