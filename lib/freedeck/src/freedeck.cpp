@@ -20,6 +20,31 @@ uint16_t page_count = 0;
 uint8_t contrast = 0;
 uint16_t timeout_sec = TIMEOUT_TIME;
 
+void send_text() {
+
+  char i = 0;
+  char key_index = 0;
+  uint8_t key;
+  uint8_t keycode[7] = {HID_KEY_NONE};
+    uint32_t ms = board_millis();
+  do {
+    f_read(&fil, &key, 1, NULL);
+    keycode[key_index] = key;
+    set_keycode(keycode);
+    sleep_ms(10);
+    key_index++;
+    if (key < 224) {
+      for(char j = 0; j <= key_index; j++) {
+        keycode[j] = HID_KEY_NONE;
+      }
+      set_keycode(keycode);
+      key_index = 0;
+      sleep_ms(10);
+    }
+  } while (key != 0 && i++ < 15);
+    o_debug(board_millis() - ms);
+  sleep_ms(11);
+}
 void press_keys() {
   char i = 0;
   uint8_t key;
@@ -106,9 +131,9 @@ void on_button_press(uint8_t buttonIndex, uint8_t secondary) {
     press_special_key();
   } else if (command == 5) {
     set_setting();
-  } /*else if (command == 4) {
-    sendText();
-  }*/
+  } else if (command == 4) {
+    send_text();
+  }
 }
 
 void on_button_release(uint8_t buttonIndex, uint8_t secondary) {
