@@ -46,8 +46,10 @@ uint32_t combine_bytes(char *numbers, uint8_t len) {
 
 uint32_t read_serial_binary() {
   uint32_t available = tud_cdc_available();
+  uint32_t start = board_millis();
   while (!available) {
     available = tud_cdc_available();
+    if(board_millis() - start > 500) return INT32_MAX;
   }
   char buf[available];
   for (int i = 0; i < available; i++) {
@@ -62,8 +64,10 @@ uint32_t read_serial_binary() {
 
 char *read_serial_string(char *serial_string, uint32_t max_len) {
   uint32_t available = tud_cdc_available();
+  uint32_t start = board_millis();
   while (!available) {
     available = tud_cdc_available();
+    if(board_millis() - start > 500) return serial_string;
   }
   char buf[available];
   if (available == 0)

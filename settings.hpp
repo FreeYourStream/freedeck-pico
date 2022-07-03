@@ -6,9 +6,10 @@
 #define CONFIG_NAME_TEMP "config.tmp"
 #define CONFIG_NAME_OLD "config.bin.old"
 #define LONG_PRESS_DURATION 250
-#define TIMEOUT_TIME 5L * 60L // timeout in seconds
-#define WAKE_ON_SERIAL true
-// #define CUSTOM_ORDER
+// timeout in seconds (this is 5minutes)
+// will be overwritten by the config
+#define TIMEOUT_TIME 5L * 60L
+#define WAKE_ON_SERIAL false
 
 #define BUTTON_PIN 19
 
@@ -22,9 +23,9 @@
 #define OLED_ADDRESS 0x3C
 
 // for faster displays
-#define OLED_SPEED 1200000
+//#define OLED_SPEED 1200000
 // for slower displays
-// #define OLED_SPEED 500000
+#define OLED_SPEED 500000
 
 // Change this value from 0x11 up to 0xff to reduce coil whine. different
 // from display to display
