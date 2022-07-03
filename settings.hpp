@@ -9,8 +9,9 @@
 // timeout in seconds (this is 5minutes)
 // will be overwritten by the config
 #define TIMEOUT_TIME 1L * 60L
-// #define WAKE_ON_ALL_SERIAL
-#define WAKE_ON_SET_PAGE_SERIAL
+// #define WAKE_ON_GET_PAGE_SERIAL // will wake up the displays everytime you focus another window
+#define WAKE_ON_SET_PAGE_SERIAL // will only wake up the display if you focus a new window that has
+                                // a configurator page
 
 #define BUTTON_PIN 19
 

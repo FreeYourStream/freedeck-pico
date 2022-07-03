@@ -221,9 +221,6 @@ void oled_write_data() {
 }
 
 void serial_api(uint32_t command) {
-#ifdef WAKE_ON_ALL_SERIAL
-  wake_display_if_needed();
-#endif
   if (command == 0x10) { // get firmware version
     write_serial_line(VERSION);
   }
@@ -241,6 +238,9 @@ void serial_api(uint32_t command) {
     char cur_pag_str[6];
     sprintf(cur_pag_str, "%d", current_page);
     write_serial_line(cur_pag_str);
+#ifdef WAKE_ON_GET_PAGE_SERIAL
+    wake_display_if_needed();
+#endif
   }
   if (command == 0x31) { // set current page
     char tar_pag_str[6];
