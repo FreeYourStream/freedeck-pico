@@ -8,8 +8,9 @@
 #define LONG_PRESS_DURATION 250
 // timeout in seconds (this is 5minutes)
 // will be overwritten by the config
-#define TIMEOUT_TIME 5L * 60L
-#define WAKE_ON_SERIAL false
+#define TIMEOUT_TIME 1L * 60L
+// #define WAKE_ON_ALL_SERIAL
+#define WAKE_ON_SET_PAGE_SERIAL
 
 #define BUTTON_PIN 19
 

@@ -49,7 +49,8 @@ uint32_t read_serial_binary() {
   uint32_t start = board_millis();
   while (!available) {
     available = tud_cdc_available();
-    if(board_millis() - start > 500) return INT32_MAX;
+    if (board_millis() - start > 500)
+      return INT32_MAX;
   }
   char buf[available];
   for (int i = 0; i < available; i++) {
@@ -67,7 +68,8 @@ char *read_serial_string(char *serial_string, uint32_t max_len) {
   uint32_t start = board_millis();
   while (!available) {
     available = tud_cdc_available();
-    if(board_millis() - start > 500) return serial_string;
+    if (board_millis() - start > 500)
+      return serial_string;
   }
   char buf[available];
   if (available == 0)
@@ -219,7 +221,7 @@ void oled_write_data() {
 }
 
 void serial_api(uint32_t command) {
-#ifdef WAKE_ON_SERIAL
+#ifdef WAKE_ON_ALL_SERIAL
   wake_display_if_needed();
 #endif
   if (command == 0x10) { // get firmware version
@@ -249,6 +251,9 @@ void serial_api(uint32_t command) {
     } else {
       write_serial_line(ERROR);
     }
+#ifdef WAKE_ON_SET_PAGE_SERIAL
+    wake_display_if_needed();
+#endif
   }
   if (command == 0x32) { // get page count
     char pag_count_str[6];
