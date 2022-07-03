@@ -31,3 +31,17 @@ jobs:
           artifacts: "build/freedeck-pico.uf2"
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: "${{ env.FW_VERSION }}"
+      - uses: ncipollo/release-action@v1
+        with:
+          allowUpdates: true
+          artifacts: "build/freedeck-pico.uf2"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          body: always up-to-date. maybe unstable
+          tag: "dev"
+          commit: develop
+      - name: Actions for Discord
+        uses: Ilshidur/action-discord@0.0.2
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.WEBHOOK_URL_FIRMWARE }}
+        with:
+          args: "A new freedeck pico stable firmware has been released! https://github.com/FreeYourStream/freedeck-pico/releases/download/${{ env.FW_VERSION }}/freedeck-pico.uf2"
