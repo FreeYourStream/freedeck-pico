@@ -4,7 +4,7 @@
 
 ### It is still considered unstable. Be brave and help me testing it :)
 
-## PCB will be released soon. Beta Gerber-files are available on discord :)
+## PCB availabe [here](https://github.com/FreeYourStream/freedeck-hardware/tree/master/3x2/ThroughHole/raspberry_pi_pico)
 
 # Installation
 
