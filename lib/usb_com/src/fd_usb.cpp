@@ -144,13 +144,17 @@ static void send_hid_report() {
     }
     has_keyboard_key = false;
   }
-
+  static bool has_special_key = false;
   if (special_code != 0) {
-    tud_hid_report(REPORT_ID_CONSUMER_CONTROL, &special_code, 2);
-    special_code = 0;
+    if (has_special_key == false)
+      tud_hid_report(REPORT_ID_CONSUMER_CONTROL, &special_code, 2);
+    has_special_key = true;
+    if (special_code == HID_KEY_VOLUME_UP || special_code == HID_KEY_VOLUME_DOWN)
+      special_code = 0;
   } else {
     // send empty key report (release key) if previously has key pressed
     tud_hid_report(REPORT_ID_CONSUMER_CONTROL, &special_code, 2);
+    has_special_key = false;
   }
 }
 
