@@ -145,15 +145,12 @@ static void send_hid_report() {
     has_keyboard_key = false;
   }
 
-  static bool has_consumer_key = false;
   if (special_code != 0) {
     tud_hid_report(REPORT_ID_CONSUMER_CONTROL, &special_code, 2);
-    has_consumer_key = true;
+    special_code = 0;
   } else {
     // send empty key report (release key) if previously has key pressed
-    if (has_consumer_key)
-      tud_hid_report(REPORT_ID_CONSUMER_CONTROL, &special_code, 2);
-    has_consumer_key = false;
+    tud_hid_report(REPORT_ID_CONSUMER_CONTROL, &special_code, 2);
   }
 }
 
