@@ -46,8 +46,11 @@ uint32_t combine_bytes(char *numbers, uint8_t len) {
 
 uint32_t read_serial_binary() {
   uint32_t available = tud_cdc_available();
+  uint32_t start = board_millis();
   while (!available) {
     available = tud_cdc_available();
+    if (board_millis() - start > 500)
+      return INT32_MAX;
   }
   char buf[available];
   for (int i = 0; i < available; i++) {
@@ -62,8 +65,11 @@ uint32_t read_serial_binary() {
 
 char *read_serial_string(char *serial_string, uint32_t max_len) {
   uint32_t available = tud_cdc_available();
+  uint32_t start = board_millis();
   while (!available) {
     available = tud_cdc_available();
+    if (board_millis() - start > 500)
+      return serial_string;
   }
   char buf[available];
   if (available == 0)
@@ -215,9 +221,6 @@ void oled_write_data() {
 }
 
 void serial_api(uint32_t command) {
-#ifdef WAKE_ON_SERIAL
-  wake_display_if_needed();
-#endif
   if (command == 0x10) { // get firmware version
     write_serial_line(VERSION);
   }
@@ -233,18 +236,31 @@ void serial_api(uint32_t command) {
   }
   if (command == 0x30) { // get current page
     char cur_pag_str[6];
-    sprintf(cur_pag_str, "%d", current_page);
+    if (last_action + PAGE_CHANGE_SERIAL_TIMEOUT < board_millis()) {
+      sprintf(cur_pag_str, "%d", current_page);
+    } else {
+      sprintf(cur_pag_str, "%d", current_page * -1);
+    }
     write_serial_line(cur_pag_str);
+#ifdef WAKE_ON_GET_PAGE_SERIAL
+    wake_display_if_needed();
+#endif
   }
   if (command == 0x31) { // set current page
     char tar_pag_str[6];
     read_serial_string(tar_pag_str, 6);
     uint16_t target_page = strtol(tar_pag_str, NULL, 10);
     if (target_page <= page_count) {
+      uint8_t keycode[6] = {HID_KEY_NONE};
+      set_keycode(keycode);
+      set_special_code(HID_KEY_NONE);
       load_page(target_page);
     } else {
       write_serial_line(ERROR);
     }
+#ifdef WAKE_ON_SET_PAGE_SERIAL
+    wake_display_if_needed();
+#endif
   }
   if (command == 0x32) { // get page count
     char pag_count_str[6];

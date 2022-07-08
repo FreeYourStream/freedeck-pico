@@ -6,9 +6,13 @@
 #define CONFIG_NAME_TEMP "config.tmp"
 #define CONFIG_NAME_OLD "config.bin.old"
 #define LONG_PRESS_DURATION 250
-#define TIMEOUT_TIME 5L * 60L // timeout in seconds
-#define WAKE_ON_SERIAL true
-// #define CUSTOM_ORDER
+#define PAGE_CHANGE_SERIAL_TIMEOUT 1500
+// timeout in seconds (this is 5minutes)
+// will be overwritten by the config
+#define TIMEOUT_TIME 1L * 60L
+// #define WAKE_ON_GET_PAGE_SERIAL // will wake up the displays everytime you focus another window
+#define WAKE_ON_SET_PAGE_SERIAL // will only wake up the display if you focus a new window that has
+                                // a configurator page
 
 #define BUTTON_PIN 19
 
@@ -22,9 +26,9 @@
 #define OLED_ADDRESS 0x3C
 
 // for faster displays
-#define OLED_SPEED 1200000
+//#define OLED_SPEED 1200000
 // for slower displays
-// #define OLED_SPEED 500000
+#define OLED_SPEED 500000
 
 // Change this value from 0x11 up to 0xff to reduce coil whine. different
 // from display to display
@@ -44,10 +48,19 @@
 // #define REFRESH_FREQUENCY 0xc1
 // #define REFRESH_FREQUENCY 0x80
 
+// SD card configuration
 // for faster sdcards
-#define SD_MHZ 16
+// #define SD_MHZ 16
+#define SD_MHZ 10
 // for slower sdcards
 // #define SD_MHZ 5
+#define SD_SPI spi1
+#define SD_MISO 8
+#define SD_MOSI 11
+#define SD_SCK 10
+#define SD_CS 9
+#define SD_DETECT 24 // leave this as 24 if you dont know what it means
+
 #define OK "ok"
 #define ERROR "error"
 

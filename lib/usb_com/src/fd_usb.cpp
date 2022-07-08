@@ -62,7 +62,6 @@ void set_keycode(uint8_t newKeycode[7]) {
 #endif
   for (int i = 0; i < 6; i++) {
     keycode[i] = newKeycode[i];
-    sleep_ms(20);
   }
 }
 
@@ -108,20 +107,19 @@ void tud_umount_cb(void) { blink_interval_ms = BLINK_NOT_MOUNTED; }
 void tud_suspend_cb(bool remote_wakeup_en) {
   (void)remote_wakeup_en;
   blink_interval_ms = BLINK_SUSPENDED;
-  for (int i = 0; i < BD_COUNT; i++) {
-    set_mux_address(i);
-    oled[i]->displayON(0);
-  }
+  // for (int i = 0; i < BD_COUNT; i++) {
+  //   set_mux_address(i);
+  //   oled[i]->displayON(0);
+  // }
 }
 
 // Invoked when usb bus is resumed
 void tud_resume_cb(void) {
-
   blink_interval_ms = BLINK_MOUNTED;
-  for (int i = 0; i < BD_COUNT; i++) {
-    set_mux_address(i);
-    oled[i]->displayON(1);
-  }
+  // for (int i = 0; i < BD_COUNT; i++) {
+  //   set_mux_address(i);
+  //   oled[i]->displayON(1);
+  // }
 }
 
 //--------------------------------------------------------------------+
@@ -146,16 +144,17 @@ static void send_hid_report() {
     }
     has_keyboard_key = false;
   }
-
-  static bool has_consumer_key = false;
+  static bool has_special_key = false;
   if (special_code != 0) {
-    tud_hid_report(REPORT_ID_CONSUMER_CONTROL, &special_code, 2);
-    has_consumer_key = true;
+    if (has_special_key == false)
+      tud_hid_report(REPORT_ID_CONSUMER_CONTROL, &special_code, 2);
+    has_special_key = true;
+    if (special_code == HID_KEY_VOLUME_UP || special_code == HID_KEY_VOLUME_DOWN)
+      special_code = 0;
   } else {
     // send empty key report (release key) if previously has key pressed
-    if (has_consumer_key)
-      tud_hid_report(REPORT_ID_CONSUMER_CONTROL, &special_code, 2);
-    has_consumer_key = false;
+    tud_hid_report(REPORT_ID_CONSUMER_CONTROL, &special_code, 2);
+    has_special_key = false;
   }
 }
 

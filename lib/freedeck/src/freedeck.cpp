@@ -20,6 +20,31 @@ uint16_t page_count = 0;
 uint8_t contrast = 0;
 uint16_t timeout_sec = TIMEOUT_TIME;
 
+void send_text() {
+
+  char i = 0;
+  char key_index = 0;
+  uint8_t key;
+  uint8_t keycode[7] = {HID_KEY_NONE};
+  uint32_t ms = board_millis();
+  do {
+    f_read(&fil, &key, 1, NULL);
+    keycode[key_index] = key;
+    set_keycode(keycode);
+    sleep_ms(10);
+    key_index++;
+    if (key < 224) {
+      for (char j = 0; j <= key_index; j++) {
+        keycode[j] = HID_KEY_NONE;
+      }
+      set_keycode(keycode);
+      key_index = 0;
+      sleep_ms(10);
+    }
+  } while (key != 0 && i++ < 15);
+  o_debug(board_millis() - ms);
+  sleep_ms(11);
+}
 void press_keys() {
   char i = 0;
   uint8_t key;
@@ -57,8 +82,10 @@ void set_global_contrast(unsigned short c) {
 }
 
 bool wake_display_if_needed() {
-  if (timeout_sec == 0)
+  if (timeout_sec == 0) {
+    last_action = board_millis();
     return false;
+  }
   if (board_millis() - last_action > (timeout_sec * 1000L)) {
     for (uint8_t i = 0; i < BD_COUNT; i++) {
       set_mux_address(i);
@@ -101,14 +128,13 @@ void on_button_press(uint8_t buttonIndex, uint8_t secondary) {
     change_page();
   } else if (command == 0) {
     press_keys();
-  }
-  if (command == 3) {
+  } else if (command == 3) {
     press_special_key();
   } else if (command == 5) {
     set_setting();
-  } /*else if (command == 4) {
-    sendText();
-  }*/
+  } else if (command == 4) {
+    send_text();
+  }
 }
 
 void on_button_release(uint8_t buttonIndex, uint8_t secondary) {
