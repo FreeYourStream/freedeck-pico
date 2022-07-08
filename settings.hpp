@@ -6,6 +6,7 @@
 #define CONFIG_NAME_TEMP "config.tmp"
 #define CONFIG_NAME_OLD "config.bin.old"
 #define LONG_PRESS_DURATION 250
+#define PAGE_CHANGE_SERIAL_TIMEOUT 1500
 // timeout in seconds (this is 5minutes)
 // will be overwritten by the config
 #define TIMEOUT_TIME 1L * 60L

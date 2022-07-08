@@ -236,7 +236,11 @@ void serial_api(uint32_t command) {
   }
   if (command == 0x30) { // get current page
     char cur_pag_str[6];
-    sprintf(cur_pag_str, "%d", current_page);
+    if (last_action + PAGE_CHANGE_SERIAL_TIMEOUT < board_millis()) {
+      sprintf(cur_pag_str, "%d", current_page);
+    } else {
+      sprintf(cur_pag_str, "%d", current_page * -1);
+    }
     write_serial_line(cur_pag_str);
 #ifdef WAKE_ON_GET_PAGE_SERIAL
     wake_display_if_needed();

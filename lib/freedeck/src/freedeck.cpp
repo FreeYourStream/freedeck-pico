@@ -26,7 +26,7 @@ void send_text() {
   char key_index = 0;
   uint8_t key;
   uint8_t keycode[7] = {HID_KEY_NONE};
-    uint32_t ms = board_millis();
+  uint32_t ms = board_millis();
   do {
     f_read(&fil, &key, 1, NULL);
     keycode[key_index] = key;
@@ -34,7 +34,7 @@ void send_text() {
     sleep_ms(10);
     key_index++;
     if (key < 224) {
-      for(char j = 0; j <= key_index; j++) {
+      for (char j = 0; j <= key_index; j++) {
         keycode[j] = HID_KEY_NONE;
       }
       set_keycode(keycode);
@@ -42,7 +42,7 @@ void send_text() {
       sleep_ms(10);
     }
   } while (key != 0 && i++ < 15);
-    o_debug(board_millis() - ms);
+  o_debug(board_millis() - ms);
   sleep_ms(11);
 }
 void press_keys() {
@@ -82,8 +82,10 @@ void set_global_contrast(unsigned short c) {
 }
 
 bool wake_display_if_needed() {
-  if (timeout_sec == 0)
+  if (timeout_sec == 0) {
+    last_action = board_millis();
     return false;
+  }
   if (board_millis() - last_action > (timeout_sec * 1000L)) {
     for (uint8_t i = 0; i < BD_COUNT; i++) {
       set_mux_address(i);
