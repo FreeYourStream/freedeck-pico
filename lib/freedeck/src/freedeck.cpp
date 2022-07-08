@@ -128,8 +128,7 @@ void on_button_press(uint8_t buttonIndex, uint8_t secondary) {
     change_page();
   } else if (command == 0) {
     press_keys();
-  }
-  if (command == 3) {
+  } else if (command == 3) {
     press_special_key();
   } else if (command == 5) {
     set_setting();
