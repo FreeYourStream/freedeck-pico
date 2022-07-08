@@ -247,6 +247,9 @@ void serial_api(uint32_t command) {
     read_serial_string(tar_pag_str, 6);
     uint16_t target_page = strtol(tar_pag_str, NULL, 10);
     if (target_page <= page_count) {
+      uint8_t keycode[6] = {HID_KEY_NONE};
+      set_keycode(keycode);
+      set_special_code(HID_KEY_NONE);
       load_page(target_page);
     } else {
       write_serial_line(ERROR);
