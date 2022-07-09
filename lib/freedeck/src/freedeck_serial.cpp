@@ -239,7 +239,7 @@ void serial_api(uint32_t command) {
     if (last_action + PAGE_CHANGE_SERIAL_TIMEOUT < board_millis()) {
       sprintf(cur_pag_str, "%d", current_page);
     } else {
-      sprintf(cur_pag_str, "%d", current_page * -1);
+      sprintf(cur_pag_str, "%d", current_page * -1 - 1);
     }
     write_serial_line(cur_pag_str);
 #ifdef WAKE_ON_GET_PAGE_SERIAL
