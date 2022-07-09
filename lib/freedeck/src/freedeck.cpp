@@ -124,9 +124,7 @@ void on_button_press(uint8_t buttonIndex, uint8_t secondary, bool leave) {
   if (wake_display_if_needed())
     return;
   uint8_t command = get_command(buttonIndex, secondary) & 0xf;
-  if (command == 1) {
-    change_page();
-  } else if (command == 0) {
+  if (command == 0) {
     press_keys();
   } else if (command == 3) {
     press_special_key();
@@ -142,6 +140,8 @@ void on_button_release(uint8_t buttonIndex, uint8_t secondary, bool leave) {
   if (command == 0) {
     uint8_t keycode[6] = {HID_KEY_NONE};
     set_keycode(keycode);
+  } else if (command == 1) {
+    change_page();
   } else if (command == 3) {
     set_special_code(HID_KEY_NONE);
   }
