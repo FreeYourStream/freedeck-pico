@@ -67,7 +67,7 @@ void press_special_key() {
 }
 
 void change_page() {
-  int16_t pageIndex;
+  uint16_t pageIndex;
   f_read(&fil, &pageIndex, 2, NULL);
   load_page(pageIndex);
 }
@@ -120,7 +120,7 @@ uint8_t get_command(uint8_t button, uint8_t secondary) {
   return command;
 }
 
-void on_button_press(uint8_t buttonIndex, uint8_t secondary) {
+void on_button_press(uint8_t buttonIndex, uint8_t secondary, bool leave) {
   if (wake_display_if_needed())
     return;
   uint8_t command = get_command(buttonIndex, secondary) & 0xf;
@@ -137,13 +137,17 @@ void on_button_press(uint8_t buttonIndex, uint8_t secondary) {
   }
 }
 
-void on_button_release(uint8_t buttonIndex, uint8_t secondary) {
+void on_button_release(uint8_t buttonIndex, uint8_t secondary, bool leave) {
   uint8_t command = get_command(buttonIndex, secondary) & 0xf;
   if (command == 0) {
     uint8_t keycode[6] = {HID_KEY_NONE};
     set_keycode(keycode);
   } else if (command == 3) {
     set_special_code(HID_KEY_NONE);
+  }
+  if (leave) {
+    f_lseek(&fil, (BD_COUNT * current_page + buttonIndex + 1) * 16 + 8);
+    change_page();
   }
 }
 
@@ -160,7 +164,7 @@ void load_page(int16_t pageIndex) {
   current_page = pageIndex;
   for (uint8_t buttonIndex = 0; buttonIndex < BD_COUNT; buttonIndex++) {
     uint8_t command = get_command(buttonIndex, false);
-    buttons[buttonIndex].hasSecondary = command > 15;
+    buttons[buttonIndex].mode = command >> 4;
     display_image(pageIndex * BD_COUNT + buttonIndex);
   }
 }
