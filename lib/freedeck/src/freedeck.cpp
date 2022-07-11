@@ -19,6 +19,7 @@ uint16_t current_page = 0;
 uint16_t page_count = 0;
 uint8_t contrast = 0;
 uint16_t timeout_sec = TIMEOUT_TIME;
+bool ignore_next = false;
 
 void send_text() {
 
@@ -67,6 +68,7 @@ void press_special_key() {
 }
 
 void change_page() {
+  ignore_next = true;
   uint16_t pageIndex;
   f_read(&fil, &pageIndex, 2, NULL);
   load_page(pageIndex);
@@ -121,11 +123,15 @@ uint8_t get_command(uint8_t button, uint8_t secondary) {
 }
 
 void on_button_press(uint8_t buttonIndex, uint8_t secondary, bool leave) {
-  if (wake_display_if_needed())
+  if (wake_display_if_needed()) {
+    ignore_next = true;
     return;
+  }
   uint8_t command = get_command(buttonIndex, secondary) & 0xf;
   if (command == 0) {
     press_keys();
+  } else if (command == 1) {
+    change_page();
   } else if (command == 3) {
     press_special_key();
   } else if (command == 5) {
@@ -136,19 +142,22 @@ void on_button_press(uint8_t buttonIndex, uint8_t secondary, bool leave) {
 }
 
 void on_button_release(uint8_t buttonIndex, uint8_t secondary, bool leave) {
+  if (ignore_next) {
+    ignore_next = false;
+    return;
+  }
   uint8_t command = get_command(buttonIndex, secondary) & 0xf;
   if (command == 0) {
     uint8_t keycode[6] = {HID_KEY_NONE};
     set_keycode(keycode);
-  } else if (command == 1) {
-    change_page();
   } else if (command == 3) {
     set_special_code(HID_KEY_NONE);
   }
-  if (leave) {
+  if (leave && !ignore_next) {
     f_lseek(&fil, (BD_COUNT * current_page + buttonIndex + 1) * 16 + 8);
     change_page();
   }
+  ignore_next = false;
 }
 
 void display_image(int16_t imageNumber) {
