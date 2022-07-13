@@ -16,13 +16,12 @@ sd_card_t *pSD = 0;
 FIL fil;
 uint16_t image_data_offset = 0;
 uint16_t current_page = 0;
+uint16_t next_page = 0;
 uint16_t page_count = 0;
 uint8_t contrast = 0;
 uint16_t timeout_sec = TIMEOUT_TIME;
-bool ignore_next = false;
 
 void send_text() {
-
   char i = 0;
   char key_index = 0;
   uint8_t key;
@@ -67,12 +66,13 @@ void press_special_key() {
   set_special_code(key);
 }
 
-void change_page() {
-  ignore_next = true;
+uint16_t get_target_page(uint8_t buttonIndex, uint8_t secondary) {
+  f_lseek(&fil, (BD_COUNT * current_page + buttonIndex + 1) * 16 + 8 * secondary + 1);
   uint16_t pageIndex;
   f_read(&fil, &pageIndex, 2, NULL);
-  load_page(pageIndex);
+  return pageIndex;
 }
+
 void set_global_contrast(unsigned short c) {
   if (c == 0)
     c = 1;
@@ -123,15 +123,14 @@ uint8_t get_command(uint8_t button, uint8_t secondary) {
 }
 
 void on_button_press(uint8_t buttonIndex, uint8_t secondary, bool leave) {
-  if (wake_display_if_needed()) {
-    ignore_next = true;
+  if (wake_display_if_needed())
     return;
-  }
   uint8_t command = get_command(buttonIndex, secondary) & 0xf;
   if (command == 0) {
     press_keys();
   } else if (command == 1) {
-    change_page();
+    next_page = get_target_page(buttonIndex, secondary);
+    load_images(next_page);
   } else if (command == 3) {
     press_special_key();
   } else if (command == 5) {
@@ -142,22 +141,22 @@ void on_button_press(uint8_t buttonIndex, uint8_t secondary, bool leave) {
 }
 
 void on_button_release(uint8_t buttonIndex, uint8_t secondary, bool leave) {
-  if (ignore_next) {
-    ignore_next = false;
-    return;
-  }
   uint8_t command = get_command(buttonIndex, secondary) & 0xf;
   if (command == 0) {
     uint8_t keycode[6] = {HID_KEY_NONE};
     set_keycode(keycode);
+  } else if (command == 1) {
+    current_page = next_page;
+    load_buttons(current_page);
   } else if (command == 3) {
     set_special_code(HID_KEY_NONE);
   }
-  if (leave && !ignore_next) {
+  if (leave) {
     f_lseek(&fil, (BD_COUNT * current_page + buttonIndex + 1) * 16 + 8);
-    change_page();
+    uint16_t pageIndex;
+    f_read(&fil, &pageIndex, 2, NULL);
+    load_page(pageIndex);
   }
-  ignore_next = false;
 }
 
 void display_image(int16_t imageNumber) {
@@ -169,13 +168,24 @@ void display_image(int16_t imageNumber) {
   oled[display_number]->display(buffer);
 }
 
-void load_page(int16_t pageIndex) {
-  current_page = pageIndex;
+void load_images(int16_t pageIndex) {
+  // current_page = pageIndex;
+  for (uint8_t buttonIndex = 0; buttonIndex < BD_COUNT; buttonIndex++) {
+    display_image(pageIndex * BD_COUNT + buttonIndex);
+  }
+}
+
+void load_buttons(int16_t pageIndex) {
   for (uint8_t buttonIndex = 0; buttonIndex < BD_COUNT; buttonIndex++) {
     uint8_t command = get_command(buttonIndex, false);
     buttons[buttonIndex].mode = command >> 4;
-    display_image(pageIndex * BD_COUNT + buttonIndex);
   }
+}
+
+void load_page(int16_t pageIndex) {
+  current_page = pageIndex;
+  load_images(pageIndex);
+  load_buttons(pageIndex);
 }
 
 void check_button_state(uint8_t buttonIndex) {

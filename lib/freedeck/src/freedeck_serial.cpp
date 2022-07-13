@@ -24,8 +24,12 @@ void write_serial_line(const char *line) {
   tud_cdc_write_flush();
 }
 
-void write_serial_char(const char chr) {
-  tud_cdc_write_char(chr);
+void write_serial_number(uint32_t number) {
+  char buffer[10];
+  itoa(number, buffer, 10);
+  printf("decimal: %s\n", buffer);
+  tud_cdc_write_str(buffer);
+  tud_cdc_write_char('\n');
   tud_cdc_write_flush();
 }
 
@@ -112,15 +116,15 @@ void _save_new_config_from_serial() {
     chunkLength = tud_cdc_read(input, 1024);
     receivedBytes = receivedBytes + chunkLength;
 
-    if (board_millis() - ellapsed > 250 || receivedBytes == fileSize) {
-      set_mux_address(1);
-      oled[1]->drawProgressBar(0, 0, 128, 64, (float)receivedBytes / (float)fileSize * 100);
-      oled[1]->display();
-      ellapsed = board_millis();
-      char num_char[10];
-      sprintf(num_char, "%d", receivedBytes);
-      write_serial_line(num_char);
-    }
+    // if (board_millis() - ellapsed > 250 || receivedBytes == fileSize) {
+    //   set_mux_address(1);
+    //   oled[1]->drawProgressBar(0, 0, 128, 64, (float)receivedBytes / (float)fileSize * 100);
+    //   oled[1]->display();
+    //   ellapsed = board_millis();
+    //   char num_char[10];
+    //   sprintf(num_char, "%d", receivedBytes);
+    //   write_serial_line(num_char);
+    // }
     f_write(&tmp_fil, input, chunkLength, NULL);
   } while (receivedBytes < fileSize);
   f_close(&tmp_fil);

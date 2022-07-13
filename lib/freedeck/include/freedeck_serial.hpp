@@ -4,5 +4,5 @@
 uint32_t read_serial_binary(void);
 void write_serial_line(const char *line);
 void write_serial(const char *line);
-void write_serial_char(const char chr);
+void write_serial_number(uint32_t number);
 void cdc_task(void);
