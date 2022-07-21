@@ -20,6 +20,7 @@ uint16_t next_page = 0;
 uint16_t page_count = 0;
 uint8_t contrast = 0;
 uint16_t timeout_sec = TIMEOUT_TIME;
+bool woke_display = 0;
 
 void send_text() {
   char i = 0;
@@ -123,7 +124,8 @@ uint8_t get_command(uint8_t button, uint8_t secondary) {
 }
 
 void on_button_press(uint8_t buttonIndex, uint8_t secondary, bool leave) {
-  if (wake_display_if_needed())
+  woke_display = wake_display_if_needed();
+  if (woke_display)
     return;
   uint8_t command = get_command(buttonIndex, secondary) & 0xf;
   if (command == 0) {
@@ -141,6 +143,10 @@ void on_button_press(uint8_t buttonIndex, uint8_t secondary, bool leave) {
 }
 
 void on_button_release(uint8_t buttonIndex, uint8_t secondary, bool leave) {
+  if (woke_display) {
+    woke_display = false;
+    return;
+  }
   uint8_t command = get_command(buttonIndex, secondary) & 0xf;
   if (command == 0) {
     uint8_t keycode[6] = {HID_KEY_NONE};
