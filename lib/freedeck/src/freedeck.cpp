@@ -48,16 +48,24 @@ void send_text() {
 }
 void press_keys() {
   char i = 0;
+  char j = -1;
   uint8_t key;
   uint8_t keycode[7] = {HID_KEY_NONE};
   do {
     f_read(&fil, &key, 1, NULL);
-    keycode[i] = key;
+    if (key > 0x80 && key < 0xe0) {
+      sleep_ms(15);
+      keycode[j] = HID_KEY_NONE;
+      set_keycode(keycode);
+      sleep_ms(15);
+    } else {
+      keycode[++j] = key;
+      set_keycode(keycode);
+    }
+
   } while (key != 0 && i++ < 7);
-  set_keycode(keycode);
   sleep_ms(11);
 }
-
 void press_special_key() {
   char i = 0;
   uint8_t buffer[2];
