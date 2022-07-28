@@ -29,12 +29,16 @@ void write_serial_number(uint32_t number) {
   itoa(number, buffer, 10);
   printf("decimal: %s\n", buffer);
   tud_cdc_write_str(buffer);
-  tud_cdc_write_char('\n');
+  tud_cdc_write_str("\r\n");
   tud_cdc_write_flush();
 }
 
 void write_serial(const char *line) {
   tud_cdc_write_str(line);
+  tud_cdc_write_flush();
+}
+void write_serial(char byte) {
+  tud_cdc_write_char(byte);
   tud_cdc_write_flush();
 }
 

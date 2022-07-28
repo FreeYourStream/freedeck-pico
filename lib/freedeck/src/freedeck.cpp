@@ -75,6 +75,16 @@ void press_special_key() {
   set_special_code(key);
 }
 
+void emit_button_press(uint8_t button_index, bool secondary) {
+  write_serial(0x3);
+  write_serial_line("");
+  write_serial(0x10);
+  write_serial_line("");
+  char f_size_str[10];
+  sprintf(f_size_str, "%d\t%d\t%d", current_page, button_index, secondary);
+  write_serial_line(f_size_str);
+}
+
 uint16_t get_target_page(uint8_t buttonIndex, uint8_t secondary) {
   f_lseek(&fil, (BD_COUNT * current_page + buttonIndex + 1) * 16 + 8 * secondary + 1);
   uint16_t pageIndex;
@@ -131,22 +141,24 @@ uint8_t get_command(uint8_t button, uint8_t secondary) {
   return command;
 }
 
-void on_button_press(uint8_t buttonIndex, uint8_t secondary, bool leave) {
+void on_button_press(uint8_t button_index, uint8_t secondary, bool leave) {
   woke_display = wake_display_if_needed();
   if (woke_display)
     return;
-  uint8_t command = get_command(buttonIndex, secondary) & 0xf;
+  uint8_t command = get_command(button_index, secondary) & 0xf;
   if (command == 0) {
     press_keys();
   } else if (command == 1) {
-    next_page = get_target_page(buttonIndex, secondary);
+    next_page = get_target_page(button_index, secondary);
     load_images(next_page);
   } else if (command == 3) {
     press_special_key();
-  } else if (command == 5) {
-    set_setting();
   } else if (command == 4) {
     send_text();
+  } else if (command == 5) {
+    set_setting();
+  } else if (command == 6) {
+    emit_button_press(button_index, secondary);
   }
 }
 
