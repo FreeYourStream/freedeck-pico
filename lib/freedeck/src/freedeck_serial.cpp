@@ -244,7 +244,7 @@ void serial_api(uint32_t command) {
   }
   if (command == 0x30) { // get current page
     char cur_pag_str[6];
-    if (last_action + PAGE_CHANGE_SERIAL_TIMEOUT < board_millis()) {
+    if (last_human_action + PAGE_CHANGE_SERIAL_TIMEOUT < board_millis()) {
       sprintf(cur_pag_str, "%d", current_page);
     } else {
       sprintf(cur_pag_str, "%d", current_page * -1 - 1);

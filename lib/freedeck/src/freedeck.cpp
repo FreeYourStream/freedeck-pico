@@ -10,6 +10,7 @@
 #include <fd_usb.hpp>
 #include <pico/stdlib.h>
 uint32_t last_action = 0;
+uint32_t last_human_action = 0;
 Button buttons[BD_COUNT];
 GFX *oled[BD_COUNT];
 sd_card_t *pSD = 0;
@@ -142,6 +143,7 @@ uint8_t get_command(uint8_t button, uint8_t secondary) {
 }
 
 void on_button_press(uint8_t button_index, uint8_t secondary, bool leave) {
+  last_human_action = board_millis();
   woke_display = wake_display_if_needed();
   if (woke_display)
     return;
@@ -163,6 +165,7 @@ void on_button_press(uint8_t button_index, uint8_t secondary, bool leave) {
 }
 
 void on_button_release(uint8_t buttonIndex, uint8_t secondary, bool leave) {
+  last_human_action = board_millis();
   if (woke_display) {
     woke_display = false;
     return;

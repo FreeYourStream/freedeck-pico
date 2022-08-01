@@ -10,6 +10,7 @@ extern uint16_t current_page;
 extern uint16_t page_count;
 extern Button buttons[];
 extern uint32_t last_action;
+extern uint32_t last_human_action;
 extern uint16_t timeout_sec;
 void displayImage(int16_t imageNumber);
 void load_images(int16_t pageIndex);
