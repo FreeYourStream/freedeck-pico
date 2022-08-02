@@ -289,6 +289,7 @@ void serial_api(uint32_t command) {
   }
   if (command == 0x44) { // oled set technical parameters
     uint8_t oled_speed = read_serial_string_to_number(4);
+    uint8_t _oled_delay = read_serial_string_to_number(4);
     uint8_t pre_charge_period = read_serial_string_to_number(4);
     uint8_t refresh_frequency = read_serial_string_to_number(4);
     init_oleds(oled_speed, pre_charge_period, refresh_frequency);

@@ -245,6 +245,7 @@ void load_header_info() {
   timeout_sec = timeout_buf[0] | timeout_buf[1] << 8;
 
   f_read(&fil, &oled_speed, 1, NULL);
+  f_read(&fil, NULL, 1, NULL);
   f_read(&fil, &pre_charge_period, 1, NULL);
   f_read(&fil, &refresh_frequency, 1, NULL);
 

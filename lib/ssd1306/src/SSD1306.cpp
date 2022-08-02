@@ -53,7 +53,7 @@ void SSD1306::init(uint8_t pre_charge_period, uint8_t refresh_frequency) {
   this->sendCommand(0x12);
 
   this->sendCommand(SSD1306_SETVCOMDETECT);
-  this->sendCommand(0x40);
+  this->sendCommand(0x10);
 
   this->sendCommand(SSD1306_CHARGEPUMP);
   this->sendCommand(0x14);
