@@ -21,6 +21,10 @@ uint16_t next_page = 0;
 uint16_t page_count = 0;
 uint8_t contrast = 0;
 uint16_t timeout_sec = TIMEOUT_TIME;
+uint8_t oled_speed = OLED_SPEED;
+uint8_t pre_charge_period = PRE_CHARGE_PERIOD;
+uint8_t refresh_frequency = REFRESH_FREQUENCY;
+
 bool woke_display = 0;
 
 void send_text() {
@@ -233,17 +237,29 @@ void load_header_info() {
   uint16_t num = (uint8_t)buffer[0] | (uint8_t)buffer[1] << 8;
   image_data_offset = num * 16;
   page_count = (num - 1) / BD_COUNT;
-  char contrast_buf;
-  f_read(&fil, &contrast_buf, 1, NULL);
-  set_global_contrast(contrast_buf);
+
+  f_read(&fil, &contrast, 1, NULL);
 
   char timeout_buf[2];
   f_read(&fil, &timeout_buf, 2, NULL);
   timeout_sec = timeout_buf[0] | timeout_buf[1] << 8;
+
+  f_read(&fil, &oled_speed, 1, NULL);
+  f_read(&fil, &pre_charge_period, 1, NULL);
+  f_read(&fil, &refresh_frequency, 1, NULL);
+
+  if (oled_speed == 0)
+    oled_speed = OLED_SPEED / 10000;
+  if (pre_charge_period == 0)
+    pre_charge_period = PRE_CHARGE_PERIOD;
+  if (refresh_frequency == 0)
+    refresh_frequency = REFRESH_FREQUENCY;
 }
 
 void post_setup() {
   load_header_info();
+  init_oleds(oled_speed, pre_charge_period, refresh_frequency);
+  set_global_contrast(contrast);
   load_page(0);
 }
 

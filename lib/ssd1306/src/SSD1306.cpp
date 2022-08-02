@@ -22,7 +22,7 @@ SSD1306::SSD1306(uint16_t const DevAddr, size Size, i2c_inst_t *i2c)
   this->buffer = new unsigned char[this->width * this->height / 8];
 }
 
-void SSD1306::init() {
+void SSD1306::init(uint8_t pre_charge_period, uint8_t refresh_frequency) {
   this->sendCommand(SSD1306_DISPLAYOFF);
 
   this->sendCommand(SSD1306_SETLOWCOLUMN);
@@ -44,10 +44,10 @@ void SSD1306::init() {
   this->sendCommand(0x00);
 
   this->sendCommand(SSD1306_SETDISPLAYCLOCKDIV);
-  this->sendCommand(REFRESH_FREQUENCY);
+  this->sendCommand(refresh_frequency);
 
   this->sendCommand(SSD1306_SETPRECHARGE);
-  this->sendCommand(PRE_CHARGE_PERIOD);
+  this->sendCommand(pre_charge_period);
 
   this->sendCommand(SSD1306_SETCOMPINS);
   this->sendCommand(0x12);

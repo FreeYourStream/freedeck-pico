@@ -48,7 +48,7 @@ protected:
 public:
   SSD1306(uint16_t const DevAddr, size Size, i2c_inst_t *i2c);
   ~SSD1306();
-  void init();
+  void init(uint8_t pre_charge_period, uint8_t refresh_frequency);
   void displayON(uint8_t On);
   void invertColors(uint8_t Invert);
   void rotateDisplay(uint8_t Rotate);
