@@ -87,11 +87,17 @@ char *read_serial_string(char *serial_string, uint32_t max_len) {
     buf[i] = tud_cdc_read_char();
     if (buf[i] == '\n') {
       buf[i] = '\0';
-      strncpy(serial_string, buf, i);
+      strncpy(serial_string, buf, i + 1);
       return serial_string;
     }
   }
   return serial_string;
+}
+
+uint32_t read_serial_string_to_number(uint32_t max_len) {
+  char buffer[max_len];
+  read_serial_string(buffer, max_len);
+  return atol(buffer);
 }
 
 uint32_t _get_file_size() {
@@ -112,23 +118,17 @@ void _save_new_config_from_serial() {
   oled[0]->display();
   uint32_t receivedBytes = 0;
   uint32_t chunkLength;
-  int32_t ellapsed = board_millis();
+  uint32_t ellapsed = board_millis();
+
   do {
-    while (!tud_cdc_available()) {
+    if (board_millis() - ellapsed > 1000) {
+      break;
     }
     char input[1024];
     chunkLength = tud_cdc_read(input, 1024);
+    if (chunkLength)
+      ellapsed = board_millis();
     receivedBytes = receivedBytes + chunkLength;
-
-    // if (board_millis() - ellapsed > 250 || receivedBytes == fileSize) {
-    //   set_mux_address(1);
-    //   oled[1]->drawProgressBar(0, 0, 128, 64, (float)receivedBytes / (float)fileSize * 100);
-    //   oled[1]->display();
-    //   ellapsed = board_millis();
-    //   char num_char[10];
-    //   sprintf(num_char, "%d", receivedBytes);
-    //   write_serial_line(num_char);
-    // }
     f_write(&tmp_fil, input, chunkLength, NULL);
   } while (receivedBytes < fileSize);
   f_close(&tmp_fil);
@@ -286,6 +286,14 @@ void serial_api(uint32_t command) {
   }
   if (command == 0x43) { // oled send data/image
     oled_write_data();
+  }
+  if (command == 0x44) { // oled set technical parameters
+    uint8_t oled_speed = read_serial_string_to_number(4);
+    uint8_t pre_charge_period = read_serial_string_to_number(4);
+    uint8_t refresh_frequency = read_serial_string_to_number(4);
+    init_oleds(oled_speed, pre_charge_period, refresh_frequency);
+    load_page(current_page);
+    set_global_contrast(contrast);
   }
 }
 
