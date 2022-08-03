@@ -26,9 +26,9 @@
 #define OLED_ADDRESS 0x3C
 
 // for faster displays
-//#define OLED_SPEED 1200000
+//#define OLED_SPEED 120
 // for slower displays
-#define OLED_SPEED 500000
+#define OLED_SPEED 50
 
 // Change this value from 0x11 up to 0xff to reduce coil whine. different
 // from display to display
