@@ -263,8 +263,6 @@ void serial_api(uint32_t command) {
       set_keycode(keycode);
       set_special_code(HID_KEY_NONE);
       load_page(target_page);
-    } else {
-      write_serial_line(ERROR);
     }
 #ifdef WAKE_ON_SET_PAGE_SERIAL
     wake_display_if_needed();
