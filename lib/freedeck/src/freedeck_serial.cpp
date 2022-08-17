@@ -236,11 +236,18 @@ void serial_api(uint32_t command) {
     write_serial_line("rp2040,pi,pico");
   }
   if (command == 0x20) { // read config
+    if (!has_json) {
+      write_serial_line("unavailable");
+      return;
+    }
     _dump_config_over_serial();
   }
   if (command == 0x21) { // write config
     _save_new_config_from_serial();
     post_setup();
+  }
+  if (command == 0x22) { // config has json
+    write_serial_number(has_json);
   }
   if (command == 0x30) { // get current page
     char cur_pag_str[6];

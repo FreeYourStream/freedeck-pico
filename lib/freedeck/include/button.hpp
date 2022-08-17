@@ -7,7 +7,7 @@
 #define PRIMARY_SECONDARY 1
 #define PRIMARY_LEAVE 2
 
-typedef void (*CallbackType)(uint8_t index, uint8_t secondary, bool leave);
+typedef void (*CallbackType)(uint8_t index, uint8_t secondary);
 
 class Button {
 public:
@@ -15,7 +15,7 @@ public:
   bool state = BUTTON_UP;
   uint32_t pressedSince = 0;
   bool pressExecuted = false;
-  uint8_t mode = 0;
+  bool has_secondary = false;
 
   CallbackType onPressCallback;
   CallbackType onReleaseCallback;

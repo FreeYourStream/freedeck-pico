@@ -1,6 +1,8 @@
 #pragma once
 #define DEBUG 1
 
+#define ROW_SIZE 128
+
 #define BD_COUNT 6
 #define CONFIG_NAME "config.bin"
 #define CONFIG_NAME_TEMP "config.tmp"
