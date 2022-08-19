@@ -16,7 +16,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS true)
 download_project(
   PROJ fatfs_pico
   GIT_REPOSITORY https://github.com/carlk3/no-OS-FatFS-SD-SPI-RPi-Pico.git
-  GIT_TAG        fe71973accb34783840ad59443c023e4b5eccf03
+  GIT_TAG        2ec7e007f1414c5b704f72b919adbdeadfc92408#fe71973accb34783840ad59443c023e4b5eccf03
   UPDATE_DISCONNECTED 1
 )
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
