@@ -9,8 +9,6 @@
  */
 GFX::GFX(uint16_t const DevAddr, size Size, i2c_inst_t *i2c) : SSD1306(DevAddr, Size, i2c){};
 
-void GFX::initOled() { this->init(); }
-
 /**
  * @brief Draw one char.
  *

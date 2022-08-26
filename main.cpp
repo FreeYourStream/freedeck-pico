@@ -16,7 +16,7 @@ void setup() {
   stdio_init_all();
   init_mux();
   init_button();
-  init_oleds();
+  init_oleds(OLED_SPEED, PRE_CHARGE_PERIOD, REFRESH_FREQUENCY);
   init_sdcard();
   init_usb();
   post_setup();

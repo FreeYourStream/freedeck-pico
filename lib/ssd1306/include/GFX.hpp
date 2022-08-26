@@ -16,7 +16,6 @@ class GFX : public SSD1306 {
 public:
   GFX(uint16_t const DevAddr, size Size, i2c_inst_t *i2c);
 
-  void initOled();
   void drawChar(int x, int y, char chr, int scale = 1, colors color = colors::WHITE);
   void drawString(int x, int y, std::string str, int scale = 1, colors color = colors::WHITE);
   void drawProgressBar(int x, int y, uint16_t w, uint16_t h, uint8_t progress,

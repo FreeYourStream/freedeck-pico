@@ -56,7 +56,14 @@
     "time.h": "c",
     "config.h": "c",
     "version.h": "c",
-    "ff.h": "c"
+    "ff.h": "c",
+    "complex": "cpp",
+    "bitset": "cpp",
+    "vector": "cpp",
+    "exception": "cpp",
+    "functional": "cpp",
+    "*.inc": "cpp",
+    "algorithm": "cpp"
   },
   "C_Cpp.errorSquiggles": "Enabled"
 }

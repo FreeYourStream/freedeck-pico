@@ -1,5 +1,6 @@
 #include "button.hpp"
 #include "settings.hpp"
+#include "util.hpp"
 #include <bsp/board.h>
 #include <pico/stdlib.h>
 
@@ -8,7 +9,7 @@ void Button::update(bool new_state) {
   // the secondary function to fire
   if (state == BUTTON_UP && new_state == BUTTON_DOWN) { // getting pressed down
     state = new_state;
-    if (hasSecondary) {
+    if (has_secondary) {
       // to decide if we need to execute long or short press
       // start couting for how long we press the button
       pressedSince = board_millis();
@@ -16,7 +17,7 @@ void Button::update(bool new_state) {
       callShortPress();
     }
   } else if (state == BUTTON_DOWN && state == new_state) { // still being pressed down
-    if (!hasSecondary || pressExecuted)
+    if (!has_secondary || pressExecuted)
       return;
 
     uint32_t now = board_millis();
@@ -30,7 +31,7 @@ void Button::update(bool new_state) {
 
   } else if (state == BUTTON_DOWN && new_state == BUTTON_UP) { // getting released
     state = new_state;
-    if (hasSecondary) {
+    if (has_secondary) {
       uint32_t now = board_millis();
       uint32_t passedTime = now - pressedSince;
       pressedSince = 0;

@@ -9,8 +9,8 @@
 #include <hw_config.h>
 #include <sd_card.h>
 
-void init_oleds() {
-  i2c_init(i2c1, OLED_SPEED);                 // make this afap
+void init_oleds(uint8_t oled_speed, uint8_t pre_charge_period, uint8_t refresh_frequency) {
+  i2c_init(i2c1, oled_speed * 10000);         // make this afap
   gpio_set_function(OLED_SDA, GPIO_FUNC_I2C); // Use GPIO2 as I2C
   gpio_set_function(OLED_SCL, GPIO_FUNC_I2C); // Use GPIO3 as I2C
   gpio_pull_up(OLED_SDA);                     // Pull up GPIO2
@@ -19,7 +19,7 @@ void init_oleds() {
   for (int i = 0; i < BD_COUNT; i++) {
     oled[i] = new GFX(OLED_ADDRESS, size::W128xH64, i2c1); // Declare oled instance
     set_mux_address(i);
-    oled[i]->init();
+    oled[i]->init(pre_charge_period, refresh_frequency);
     i % 2 ? oled[i]->display(logo) : oled[i]->display(fdlogo);
   }
 }

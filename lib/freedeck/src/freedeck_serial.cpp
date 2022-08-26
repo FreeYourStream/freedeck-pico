@@ -24,13 +24,21 @@ void write_serial_line(const char *line) {
   tud_cdc_write_flush();
 }
 
-void write_serial_char(const char chr) {
-  tud_cdc_write_char(chr);
+void write_serial_number(uint32_t number) {
+  char buffer[10];
+  itoa(number, buffer, 10);
+  printf("decimal: %s\n", buffer);
+  tud_cdc_write_str(buffer);
+  tud_cdc_write_str("\r\n");
   tud_cdc_write_flush();
 }
 
 void write_serial(const char *line) {
   tud_cdc_write_str(line);
+  tud_cdc_write_flush();
+}
+void write_serial(char byte) {
+  tud_cdc_write_char(byte);
   tud_cdc_write_flush();
 }
 
@@ -79,11 +87,17 @@ char *read_serial_string(char *serial_string, uint32_t max_len) {
     buf[i] = tud_cdc_read_char();
     if (buf[i] == '\n') {
       buf[i] = '\0';
-      strncpy(serial_string, buf, i);
+      strncpy(serial_string, buf, i + 1);
       return serial_string;
     }
   }
   return serial_string;
+}
+
+uint32_t read_serial_string_to_number(uint32_t max_len) {
+  char buffer[max_len];
+  read_serial_string(buffer, max_len);
+  return atol(buffer);
 }
 
 uint32_t _get_file_size() {
@@ -104,23 +118,17 @@ void _save_new_config_from_serial() {
   oled[0]->display();
   uint32_t receivedBytes = 0;
   uint32_t chunkLength;
-  int32_t ellapsed = board_millis();
+  uint32_t ellapsed = board_millis();
+
   do {
-    while (!tud_cdc_available()) {
+    if (board_millis() - ellapsed > 1000) {
+      break;
     }
     char input[1024];
     chunkLength = tud_cdc_read(input, 1024);
-    receivedBytes = receivedBytes + chunkLength;
-
-    if (board_millis() - ellapsed > 250 || receivedBytes == fileSize) {
-      set_mux_address(1);
-      oled[1]->drawProgressBar(0, 0, 128, 64, (float)receivedBytes / (float)fileSize * 100);
-      oled[1]->display();
+    if (chunkLength)
       ellapsed = board_millis();
-      char num_char[10];
-      sprintf(num_char, "%d", receivedBytes);
-      write_serial_line(num_char);
-    }
+    receivedBytes = receivedBytes + chunkLength;
     f_write(&tmp_fil, input, chunkLength, NULL);
   } while (receivedBytes < fileSize);
   f_close(&tmp_fil);
@@ -228,18 +236,25 @@ void serial_api(uint32_t command) {
     write_serial_line("rp2040,pi,pico");
   }
   if (command == 0x20) { // read config
+    if (!has_json) {
+      write_serial_line("unavailable");
+      return;
+    }
     _dump_config_over_serial();
   }
   if (command == 0x21) { // write config
     _save_new_config_from_serial();
     post_setup();
   }
+  if (command == 0x22) { // config has json
+    write_serial_number(has_json);
+  }
   if (command == 0x30) { // get current page
     char cur_pag_str[6];
-    if (last_action + PAGE_CHANGE_SERIAL_TIMEOUT < board_millis()) {
+    if (last_human_action + PAGE_CHANGE_SERIAL_TIMEOUT < board_millis()) {
       sprintf(cur_pag_str, "%d", current_page);
     } else {
-      sprintf(cur_pag_str, "%d", current_page * -1);
+      sprintf(cur_pag_str, "%d", current_page * -1 - 1);
     }
     write_serial_line(cur_pag_str);
 #ifdef WAKE_ON_GET_PAGE_SERIAL
@@ -255,8 +270,6 @@ void serial_api(uint32_t command) {
       set_keycode(keycode);
       set_special_code(HID_KEY_NONE);
       load_page(target_page);
-    } else {
-      write_serial_line(ERROR);
     }
 #ifdef WAKE_ON_SET_PAGE_SERIAL
     wake_display_if_needed();
@@ -278,6 +291,15 @@ void serial_api(uint32_t command) {
   }
   if (command == 0x43) { // oled send data/image
     oled_write_data();
+  }
+  if (command == 0x44) { // oled set technical parameters
+    uint8_t oled_speed = read_serial_string_to_number(4);
+    uint8_t _oled_delay = read_serial_string_to_number(4);
+    uint8_t pre_charge_period = read_serial_string_to_number(4);
+    uint8_t refresh_frequency = read_serial_string_to_number(4);
+    init_oleds(oled_speed, pre_charge_period, refresh_frequency);
+    load_page(current_page);
+    set_global_contrast(contrast);
   }
 }
 

@@ -2,6 +2,11 @@
 #include <pico/stdlib.h>
 #define BUTTON_DOWN 0
 #define BUTTON_UP 1
+
+#define PRIMARY 0
+#define PRIMARY_SECONDARY 1
+#define PRIMARY_LEAVE 2
+
 typedef void (*CallbackType)(uint8_t index, uint8_t secondary);
 
 class Button {
@@ -10,7 +15,7 @@ public:
   bool state = BUTTON_UP;
   uint32_t pressedSince = 0;
   bool pressExecuted = false;
-  bool hasSecondary = 0;
+  bool has_secondary = false;
 
   CallbackType onPressCallback;
   CallbackType onReleaseCallback;
