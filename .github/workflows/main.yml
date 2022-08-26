@@ -31,14 +31,6 @@ jobs:
           artifacts: "build/freedeck-pico.uf2"
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: "${{ env.FW_VERSION }}"
-      - uses: ncipollo/release-action@v1
-        with:
-          allowUpdates: true
-          artifacts: "build/freedeck-pico.uf2"
-          token: ${{ secrets.GITHUB_TOKEN }}
-          body: always up-to-date. maybe unstable
-          tag: "dev"
-          commit: develop
       - name: Actions for Discord
         uses: Ilshidur/action-discord@0.0.2
         env:
