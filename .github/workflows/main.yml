@@ -20,7 +20,7 @@ jobs:
       - name: install cmake
         run: sudo apt update && sudo apt install -y cmake gcc-arm-none-eabi
       - name: make build dir
-        run: mkdir build
+        run: mkdir -p build
       - name: cmake configure
         run: cd build && cmake ../
       - name: cmake build
