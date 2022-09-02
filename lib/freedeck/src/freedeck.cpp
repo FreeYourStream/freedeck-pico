@@ -91,6 +91,14 @@ void emit_button_press(uint8_t button_index, bool secondary) {
   write_serial_line(f_size_str);
 }
 
+void emit_page_change(uint16_t page_index) {
+  write_serial(0x3);
+  write_serial_line("");
+  write_serial(0x20);
+  write_serial_line("");
+  write_serial_number(page_index);
+}
+
 uint16_t get_target_page(uint8_t buttonIndex, uint8_t secondary) {
   f_lseek(&fil,
           (BD_COUNT * current_page + buttonIndex + 1) * ROW_SIZE + (ROW_SIZE / 2 * secondary) + 1);
@@ -211,18 +219,19 @@ void load_images(uint16_t pageIndex) {
   }
 }
 
-void load_buttons(uint16_t pageIndex) {
+void load_buttons(uint16_t page_index) {
   for (uint8_t buttonIndex = 0; buttonIndex < BD_COUNT; buttonIndex++) {
     uint8_t command = get_command(buttonIndex, false);
     uint8_t second_command = get_command(buttonIndex, true);
     buttons[buttonIndex].has_secondary = second_command != 2;
   }
+  emit_page_change(page_index);
 }
 
-void load_page(uint16_t pageIndex) {
-  current_page = pageIndex;
-  load_images(pageIndex);
-  load_buttons(pageIndex);
+void load_page(uint16_t page_index) {
+  current_page = page_index;
+  load_images(page_index);
+  load_buttons(page_index);
 }
 
 void check_button_state(uint8_t buttonIndex) {

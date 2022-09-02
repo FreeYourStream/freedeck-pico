@@ -215,17 +215,24 @@ void oled_write_data() {
 
   uint16_t received = 0;
   unsigned char buffer[1024];
+  uint32_t ellapsed = board_millis();
+
   do {
     while (!tud_cdc_available()) {
+      if (board_millis() - ellapsed > 1000) {
+        break;
+      }
     };
-    char temp[64];
-    size_t len = tud_cdc_read(temp, 64);
+    ellapsed = board_millis();
+    char temp[1024];
+    size_t len = tud_cdc_read(temp, 1024);
     memcpy(&buffer[received], temp, len);
     received += len;
   } while (received < 1024);
-
-  set_mux_address(display);
-  oled[display]->display(buffer);
+  if (received == 1024) {
+    set_mux_address(display);
+    oled[display]->display(buffer);
+  }
 }
 
 void serial_api(uint32_t command) {
