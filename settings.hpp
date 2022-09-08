@@ -53,7 +53,7 @@
 // SD card configuration
 // for faster sdcards
 // #define SD_MHZ 16
-#define SD_MHZ 2
+#define SD_MHZ 10
 // for slower sdcards
 // #define SD_MHZ 5
 #define SD_SPI spi1
