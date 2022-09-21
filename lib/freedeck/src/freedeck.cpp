@@ -212,10 +212,11 @@ void display_image(uint16_t imageNumber) {
   oled[display_number]->display(buffer);
 }
 
-void load_images(uint16_t pageIndex) {
-  // current_page = pageIndex;
+void load_images(uint16_t page_index) {
+  emit_page_change(page_index);
+  // current_page = page_index;
   for (uint8_t buttonIndex = 0; buttonIndex < BD_COUNT; buttonIndex++) {
-    display_image(pageIndex * BD_COUNT + buttonIndex);
+    display_image(page_index * BD_COUNT + buttonIndex);
   }
 }
 
@@ -225,7 +226,6 @@ void load_buttons(uint16_t page_index) {
     uint8_t second_command = get_command(buttonIndex, true);
     buttons[buttonIndex].has_secondary = second_command != 2;
   }
-  emit_page_change(page_index);
 }
 
 void load_page(uint16_t page_index) {
