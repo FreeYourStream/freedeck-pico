@@ -9,6 +9,7 @@
 #include <bsp/board.h>
 #include <fd_usb.hpp>
 #include <pico/stdlib.h>
+uint32_t last_data_received = 0;
 uint32_t last_action = 0;
 uint32_t last_human_action = 0;
 Button buttons[BD_COUNT];
@@ -205,7 +206,11 @@ void on_button_release(uint8_t buttonIndex, uint8_t secondary) {
 
 void display_image(uint16_t imageNumber) {
   uint8_t display_number = imageNumber % BD_COUNT;
-  f_lseek(&fil, image_data_offset + imageNumber * 1024L);
+  f_lseek(&fil, image_data_offset + imageNumber * 1025L);
+  uint8_t has_live_data;
+  f_read(&fil, &has_live_data, 1, NULL);
+  if (has_live_data == 1 && (board_millis() - last_data_received) < 2000)
+    return;
   unsigned char buffer[1024];
   f_read(&fil, &buffer, 1024, NULL);
   set_mux_address(display_number, TYPE_DISPLAY);

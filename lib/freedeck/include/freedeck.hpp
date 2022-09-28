@@ -11,6 +11,7 @@ extern uint16_t page_count;
 extern Button buttons[];
 extern uint32_t last_action;
 extern uint32_t last_human_action;
+extern uint32_t last_data_received;
 extern uint16_t timeout_sec;
 extern uint8_t contrast;
 extern bool has_json;

@@ -211,6 +211,7 @@ void oled_write_line() {
 }
 
 void oled_write_data() {
+  last_data_received = board_millis();
   uint8_t display = read_serial_binary();
 
   uint16_t received = 0;
