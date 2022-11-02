@@ -160,8 +160,6 @@ void _dump_config_over_serial() {
   tud_cdc_write_flush();
 }
 
-void sdcard() { load_page(0); }
-
 void oled_clear() {
   char display = read_serial_binary();
   if (display < BD_COUNT) {
@@ -277,7 +275,7 @@ void serial_api(uint32_t command) {
       uint8_t keycode[6] = {HID_KEY_NONE};
       set_keycode(keycode);
       set_special_code(HID_KEY_NONE);
-      load_page(target_page);
+      load_page(target_page, false);
     }
 #ifdef WAKE_ON_SET_PAGE_SERIAL
     wake_display_if_needed();
@@ -306,7 +304,7 @@ void serial_api(uint32_t command) {
     uint8_t pre_charge_period = read_serial_string_to_number(4);
     uint8_t refresh_frequency = read_serial_string_to_number(4);
     init_oleds(oled_speed, pre_charge_period, refresh_frequency);
-    load_page(current_page);
+    load_page(current_page, false);
     set_global_contrast(contrast);
   }
 }
