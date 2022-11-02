@@ -160,8 +160,6 @@ void _dump_config_over_serial() {
   tud_cdc_write_flush();
 }
 
-void sdcard() { load_page(0); }
-
 void oled_clear() {
   char display = read_serial_binary();
   if (display < BD_COUNT) {
@@ -211,21 +209,29 @@ void oled_write_line() {
 }
 
 void oled_write_data() {
+  last_data_received = board_millis();
   uint8_t display = read_serial_binary();
 
   uint16_t received = 0;
   unsigned char buffer[1024];
+  uint32_t ellapsed = board_millis();
+
   do {
     while (!tud_cdc_available()) {
+      if (board_millis() - ellapsed > 1000) {
+        break;
+      }
     };
-    char temp[64];
-    size_t len = tud_cdc_read(temp, 64);
+    ellapsed = board_millis();
+    char temp[1024];
+    size_t len = tud_cdc_read(temp, 1024);
     memcpy(&buffer[received], temp, len);
     received += len;
   } while (received < 1024);
-
-  set_mux_address(display);
-  oled[display]->display(buffer);
+  if (received == 1024) {
+    set_mux_address(display);
+    oled[display]->display(buffer);
+  }
 }
 
 void serial_api(uint32_t command) {
@@ -269,7 +275,7 @@ void serial_api(uint32_t command) {
       uint8_t keycode[6] = {HID_KEY_NONE};
       set_keycode(keycode);
       set_special_code(HID_KEY_NONE);
-      load_page(target_page);
+      load_page(target_page, false);
     }
 #ifdef WAKE_ON_SET_PAGE_SERIAL
     wake_display_if_needed();
@@ -298,7 +304,7 @@ void serial_api(uint32_t command) {
     uint8_t pre_charge_period = read_serial_string_to_number(4);
     uint8_t refresh_frequency = read_serial_string_to_number(4);
     init_oleds(oled_speed, pre_charge_period, refresh_frequency);
-    load_page(current_page);
+    load_page(current_page, false);
     set_global_contrast(contrast);
   }
 }

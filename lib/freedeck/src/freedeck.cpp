@@ -9,6 +9,7 @@
 #include <bsp/board.h>
 #include <fd_usb.hpp>
 #include <pico/stdlib.h>
+uint32_t last_data_received = 0;
 uint32_t last_action = 0;
 uint32_t last_human_action = 0;
 Button buttons[BD_COUNT];
@@ -91,6 +92,14 @@ void emit_button_press(uint8_t button_index, bool secondary) {
   write_serial_line(f_size_str);
 }
 
+void emit_page_change(uint16_t page_index) {
+  write_serial(0x3);
+  write_serial_line("");
+  write_serial(0x20);
+  write_serial_line("");
+  write_serial_number(page_index);
+}
+
 uint16_t get_target_page(uint8_t buttonIndex, uint8_t secondary) {
   f_lseek(&fil,
           (BD_COUNT * current_page + buttonIndex + 1) * ROW_SIZE + (ROW_SIZE / 2 * secondary) + 1);
@@ -158,7 +167,7 @@ void on_button_press(uint8_t button_index, uint8_t secondary) {
     press_keys();
   } else if (command == 1) {
     next_page = get_target_page(button_index, secondary);
-    load_images(next_page);
+    load_images(next_page, false);
   } else if (command == 3) {
     press_special_key();
   } else if (command == 4) {
@@ -191,27 +200,32 @@ void on_button_release(uint8_t buttonIndex, uint8_t secondary) {
   uint16_t page_index;
   f_read(&fil, &page_index, 2, NULL);
   if (page_index > 0) {
-    load_page(page_index - 1);
+    load_page(page_index - 1, false);
   }
 }
 
-void display_image(uint16_t imageNumber) {
+void display_image(uint16_t imageNumber, bool force) {
   uint8_t display_number = imageNumber % BD_COUNT;
-  f_lseek(&fil, image_data_offset + imageNumber * 1024L);
+  f_lseek(&fil, image_data_offset + imageNumber * 1025L);
+  uint8_t has_live_data;
+  f_read(&fil, &has_live_data, 1, NULL);
+  if (!force && has_live_data == 1 && (board_millis() - last_data_received) < 2000)
+    return;
   unsigned char buffer[1024];
   f_read(&fil, &buffer, 1024, NULL);
   set_mux_address(display_number, TYPE_DISPLAY);
   oled[display_number]->display(buffer);
 }
 
-void load_images(uint16_t pageIndex) {
-  // current_page = pageIndex;
+void load_images(uint16_t page_index, bool force) {
+  emit_page_change(page_index);
+  // current_page = page_index;
   for (uint8_t buttonIndex = 0; buttonIndex < BD_COUNT; buttonIndex++) {
-    display_image(pageIndex * BD_COUNT + buttonIndex);
+    display_image(page_index * BD_COUNT + buttonIndex, force);
   }
 }
 
-void load_buttons(uint16_t pageIndex) {
+void load_buttons(uint16_t page_index) {
   for (uint8_t buttonIndex = 0; buttonIndex < BD_COUNT; buttonIndex++) {
     uint8_t command = get_command(buttonIndex, false);
     uint8_t second_command = get_command(buttonIndex, true);
@@ -219,10 +233,10 @@ void load_buttons(uint16_t pageIndex) {
   }
 }
 
-void load_page(uint16_t pageIndex) {
-  current_page = pageIndex;
-  load_images(pageIndex);
-  load_buttons(pageIndex);
+void load_page(uint16_t page_index, bool force_load_images = false) {
+  current_page = page_index;
+  load_images(page_index, force_load_images);
+  load_buttons(page_index);
 }
 
 void check_button_state(uint8_t buttonIndex) {
@@ -266,7 +280,7 @@ void post_setup() {
   load_header_info();
   init_oleds(oled_speed, pre_charge_period, refresh_frequency);
   set_global_contrast(contrast);
-  load_page(0);
+  load_page(0, true);
 }
 
 void sleep_task() {
